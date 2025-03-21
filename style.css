@@ -1,0 +1,156 @@
+/* 基础样式 */
+body {
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+    background: #faf8ef;
+    margin: 0;
+    padding: 20px;
+    touch-action: none;
+    user-select: none;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* 头部样式 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #776e65;
+    margin: 0;
+    font-size: 3em;
+}
+
+.score-box {
+    background: #bbada0;
+    padding: 10px 25px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+}
+
+.score-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+#score {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 游戏棋盘 */
+#game-board {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background: #bbada0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 单元格基础样式 */
+.cell {
+    position: absolute;
+    width: 22%;
+    height: 22%;
+    background: rgba(238, 228, 218, 0.35);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6vmin;
+    font-weight: 800;
+    transition: 
+        left 0.15s ease-out,
+        top 0.15s ease-out;
+    will-change: left, top;
+}
+
+/* 数字颜色配置 */
+.tile-2 { background: #eee4da; color: #776e65; }
+.tile-4 { background: #ede0c8; color: #776e65; }
+.tile-8 { background: #f2b179; color: white; }
+.tile-16 { background: #f59563; color: white; }
+.tile-32 { background: #f67c5f; color: white; }
+.tile-64 { background: #f65e3b; color: white; }
+.tile-128 { background: #edcf72; color: white; font-size: 5vmin; }
+.tile-256 { background: #edcc61; color: white; font-size: 5vmin; }
+.tile-512 { background: #edc850; color: white; font-size: 5vmin; }
+.tile-1024 { background: #edc53f; color: white; font-size: 4vmin; }
+.tile-2048 { background: #edc22e; color: white; font-size: 4vmin; }
+
+/* 动画效果 */
+@keyframes tileAppear {
+    0% { transform: scale(0); opacity: 0; }
+    90% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes tileMerge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.animate-appear {
+    animation: tileAppear 0.15s ease-out forwards;
+}
+
+.animate-merge {
+    animation: tileMerge 0.2s ease-out forwards;
+    z-index: 2;
+}
+
+/* 游戏结束遮罩 */
+.game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 8vmin;
+    color: #776e65;
+    backdrop-filter: blur(2px);
+    z-index: 10;
+}
+
+.tips {
+    text-align: center;
+    color: #776e65;
+    margin-top: 20px;
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 10px;
+    }
+    
+    .game-header {
+        margin-bottom: 15px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .score-box {
+        padding: 8px 20px;
+    }
+}
