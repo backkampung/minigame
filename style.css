@@ -10,6 +10,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* 禁止文本选择和拖拽 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* 禁止长按菜单 */
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .hidden {
@@ -45,6 +52,9 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.1s, background 0.2s;
+    /* 移动端优化 */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .game-option:hover {
@@ -76,6 +86,9 @@ body {
     font-size: 1em;
     cursor: pointer;
     z-index: 100;
+    /* 移动端优化 */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 /* 头部样式 */
@@ -123,6 +136,13 @@ h1 {
     perspective: 1000px;
     transition: opacity 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* 移动端触摸优化 */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* 2048 单元格样式 */
@@ -142,6 +162,9 @@ h1 {
         top 0.15s ease-out;
     will-change: left, top;
     transform: translateZ(0);
+    /* 防止文本选择 */
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* 贪吃蛇样式 */
@@ -152,11 +175,17 @@ h1 {
     background: #4CAF50;
     border-radius: 20%;
     z-index: 1;
+    /* 移动端优化 */
+    will-change: left, top;
+    transform: translateZ(0);
+    transition: all 0.1s ease-out;
 }
 
 .snake-head {
     background: #2E7D32;
     border-radius: 30%;
+    /* 蛇头特效 */
+    box-shadow: 0 0 8px rgba(46, 125, 50, 0.5);
 }
 
 .food {
@@ -166,6 +195,15 @@ h1 {
     background: #f44336;
     border-radius: 50%;
     z-index: 1;
+    /* 食物闪烁效果 */
+    animation: foodPulse 1s ease-in-out infinite alternate;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
+
+/* 食物脉冲动画 */
+@keyframes foodPulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.1); opacity: 0.8; }
 }
 
 /* 数字颜色配置 */
@@ -210,7 +248,7 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -218,6 +256,9 @@ h1 {
     color: #776e65;
     backdrop-filter: blur(2px);
     z-index: 10;
+    /* 移动端优化 */
+    -webkit-backdrop-filter: blur(2px);
+    user-select: none;
 }
 
 /* 加载状态 */
@@ -229,14 +270,23 @@ h1 {
     color: white;
     font-size: 24px;
     z-index: 5;
+    /* 加载动画 */
+    animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 .tips {
     text-align: center;
     color: #776e65;
     margin-top: 20px;
+    font-size: 1em;
 }
 
+/* 移动端适配 */
 @media (max-width: 500px) {
     body {
         padding: 10px;
@@ -252,5 +302,72 @@ h1 {
     
     .score-box {
         padding: 8px 20px;
+    }
+    
+    .game-option {
+        font-size: 1.5em;
+        padding: 15px;
+    }
+    
+    .tips {
+        font-size: 0.9em;
+        margin-top: 15px;
+    }
+    
+    /* 贪吃蛇在小屏幕上的优化 */
+    .snake-segment {
+        border-radius: 15%;
+    }
+    
+    .snake-head {
+        border-radius: 25%;
+    }
+    
+    .food {
+        animation-duration: 0.8s;
+    }
+}
+
+/* 超小屏幕适配 */
+@media (max-width: 350px) {
+    body {
+        padding: 5px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    .game-option {
+        font-size: 1.3em;
+        padding: 12px;
+    }
+    
+    .score-box {
+        padding: 6px 15px;
+    }
+    
+    #score {
+        font-size: 20px;
+    }
+}
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-height: 500px) {
+    body {
+        padding: 5px;
+    }
+    
+    .game-header {
+        margin-bottom: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .tips {
+        margin-top: 10px;
+        font-size: 0.8em;
     }
 }

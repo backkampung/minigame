@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(resolve => requestAnimationFrame(resolve));
         
         gameTitle.textContent = '贪吃蛇';
-        gameTips.textContent = '使用方向键控制';
+        gameTips.textContent = '使用方向键或滑动操作控制';
         
         currentGame = snakeGame;
         snakeGame.start();

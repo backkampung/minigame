@@ -2,6 +2,10 @@ class SnakeGame {
     constructor() {
         this.resetGame();
         this.keydownHandler = this.handleKeydown.bind(this);
+        this.touchStartHandler = this.handleTouchStart.bind(this);
+        this.touchEndHandler = this.handleTouchEnd.bind(this);
+        this.touchStartX = 0;
+        this.touchStartY = 0;
     }
 
     resetGame() {
@@ -157,17 +161,72 @@ class SnakeGame {
         }
     }
 
+    // 新增：触摸开始处理器
+    handleTouchStart(e) {
+        if (!this.isActive) return;
+        
+        // 阻止默认行为，防止页面滚动
+        e.preventDefault();
+        
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+    }
+
+    // 新增：触摸结束处理器
+    handleTouchEnd(e) {
+        if (!this.isActive) return;
+        
+        // 阻止默认行为
+        e.preventDefault();
+        
+        const dx = e.changedTouches[0].clientX - this.touchStartX;
+        const dy = e.changedTouches[0].clientY - this.touchStartY;
+        const absDx = Math.abs(dx);
+        const absDy = Math.abs(dy);
+
+        // 最小滑动距离阈值（适合触摸操作）
+        if (Math.max(absDx, absDy) < 20) return;
+
+        // 确定滑动方向
+        let newDirection;
+        if (absDx > absDy) {
+            // 水平滑动
+            newDirection = dx > 0 ? 'right' : 'left';
+        } else {
+            // 垂直滑动
+            newDirection = dy > 0 ? 'down' : 'up';
+        }
+
+        // 防止反向移动
+        const oppositeDirections = {
+            'up': 'down',
+            'down': 'up',
+            'left': 'right',
+            'right': 'left'
+        };
+
+        if (this.direction !== oppositeDirections[newDirection]) {
+            this.nextDirection = newDirection;
+        }
+    }
+
     bindEvents() {
         // 移除旧的事件监听器（防止重复绑定）
         this.removeEvents();
         
-        // 绑定新的事件监听器
+        // 绑定键盘事件监听器
         document.addEventListener('keydown', this.keydownHandler);
+        
+        // 绑定触摸事件监听器（注意：touchstart需要passive:false以支持preventDefault）
+        document.addEventListener('touchstart', this.touchStartHandler, { passive: false });
+        document.addEventListener('touchend', this.touchEndHandler, { passive: false });
     }
 
     // 新增：移除事件监听器
     removeEvents() {
         document.removeEventListener('keydown', this.keydownHandler);
+        document.removeEventListener('touchstart', this.touchStartHandler);
+        document.removeEventListener('touchend', this.touchEndHandler);
     }
 
     endGame() {
