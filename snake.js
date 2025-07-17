@@ -18,14 +18,14 @@ class SnakeGame {
         this.speed = 150;
         this.gameInterval = null;
         this.isGameOver = false;
-        this.isActive = false; // 新增：游戏激活状态
+        this.isActive = false;
         this.highScore = parseInt(localStorage.getItem('snake-highScore')) || 0;
     }
 
     start() {
-        this.cleanup(); // 先清理
+        this.cleanup();
         this.resetGame();
-        this.isActive = true; // 激活游戏
+        this.isActive = true;
         this.clearBoard();
         this.food = this.generateFood();
         this.renderSnake();
@@ -36,7 +36,6 @@ class SnakeGame {
         this.bindEvents();
     }
 
-    // 新增：清理方法
     cleanup() {
         this.isActive = false;
         if (this.gameInterval) {
@@ -85,7 +84,7 @@ class SnakeGame {
     }
 
     update() {
-        if (!this.isActive) return; // 只有激活状态才更新
+        if (!this.isActive) return;
         
         this.direction = this.nextDirection;
         
@@ -98,7 +97,6 @@ class SnakeGame {
             case 'right': head.x += 1; break;
         }
         
-        // 检查碰撞
         if (
             head.x < 0 || head.x >= this.size ||
             head.y < 0 || head.y >= this.size ||
@@ -110,7 +108,6 @@ class SnakeGame {
         
         this.snake.unshift(head);
         
-        // 检查是否吃到食物
         if (head.x === this.food.x && head.y === this.food.y) {
             this.score += 10;
             document.getElementById('score').textContent = this.score;
@@ -122,7 +119,6 @@ class SnakeGame {
             
             this.food = this.generateFood();
             
-            // 随着分数增加加快速度
             if (this.score % 50 === 0 && this.speed > 50) {
                 this.speed -= 10;
                 clearInterval(this.gameInterval);
@@ -137,9 +133,8 @@ class SnakeGame {
         this.renderFood();
     }
 
-    // 重构：键盘事件处理器
     handleKeydown(e) {
-        if (!this.isActive) return; // 只有激活状态才响应
+        if (!this.isActive) return;
         
         switch(e.key) {
             case 'ArrowUp':
@@ -161,39 +156,31 @@ class SnakeGame {
         }
     }
 
-    // 新增：触摸开始处理器
+    // 修改：触摸开始处理器 - 参考2048的实现
     handleTouchStart(e) {
         if (!this.isActive) return;
-        
-        // 阻止默认行为，防止页面滚动
-        e.preventDefault();
         
         this.touchStartX = e.touches[0].clientX;
         this.touchStartY = e.touches[0].clientY;
     }
 
-    // 新增：触摸结束处理器
+    // 修改：触摸结束处理器 - 参考2048的实现
     handleTouchEnd(e) {
         if (!this.isActive) return;
-        
-        // 阻止默认行为
-        e.preventDefault();
         
         const dx = e.changedTouches[0].clientX - this.touchStartX;
         const dy = e.changedTouches[0].clientY - this.touchStartY;
         const absDx = Math.abs(dx);
         const absDy = Math.abs(dy);
 
-        // 最小滑动距离阈值（适合触摸操作）
-        if (Math.max(absDx, absDy) < 20) return;
+        // 使用与2048相同的最小滑动距离
+        if (Math.max(absDx, absDy) < 30) return;
 
         // 确定滑动方向
         let newDirection;
         if (absDx > absDy) {
-            // 水平滑动
             newDirection = dx > 0 ? 'right' : 'left';
         } else {
-            // 垂直滑动
             newDirection = dy > 0 ? 'down' : 'up';
         }
 
@@ -210,27 +197,35 @@ class SnakeGame {
         }
     }
 
+    // 修改：事件绑定 - 参考2048的实现
     bindEvents() {
-        // 移除旧的事件监听器（防止重复绑定）
         this.removeEvents();
         
-        // 绑定键盘事件监听器
+        // 键盘事件绑定到document
         document.addEventListener('keydown', this.keydownHandler);
         
-        // 绑定触摸事件监听器（注意：touchstart需要passive:false以支持preventDefault）
-        document.addEventListener('touchstart', this.touchStartHandler, { passive: false });
-        document.addEventListener('touchend', this.touchEndHandler, { passive: false });
+        // 触摸事件绑定到游戏板，与2048保持一致
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.addEventListener('touchstart', this.touchStartHandler, { passive: true });
+            gameBoard.addEventListener('touchend', this.touchEndHandler);
+        }
     }
 
-    // 新增：移除事件监听器
+    // 修改：移除事件监听器
     removeEvents() {
         document.removeEventListener('keydown', this.keydownHandler);
-        document.removeEventListener('touchstart', this.touchStartHandler);
-        document.removeEventListener('touchend', this.touchEndHandler);
+        
+        // 从游戏板移除触摸事件
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.removeEventListener('touchstart', this.touchStartHandler);
+            gameBoard.removeEventListener('touchend', this.touchEndHandler);
+        }
     }
 
     endGame() {
-        this.cleanup(); // 使用统一的清理方法
+        this.cleanup();
         this.isGameOver = true;
         
         const overlay = document.createElement('div');
