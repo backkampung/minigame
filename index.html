@@ -3,21 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2048 游戏</title>
+    <title>游戏合集</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
+    <div id="game-selector" class="game-selector">
+        <h1>选择游戏</h1>
+        <div class="game-options">
+            <button id="game-2048" class="game-option">2048</button>
+            <button id="game-snake" class="game-option">贪吃蛇</button>
+        </div>
+    </div>
+
+    <div id="game-container" class="game-container hidden">
+        <button id="back-button" class="back-button">返回</button>
         <div class="game-header">
-            <h1>2048</h1>
+            <h1 id="game-title">游戏</h1>
             <div class="score-box">
                 <div class="score-label">分数</div>
                 <div id="score">0</div>
             </div>
         </div>
         <div id="game-board"></div>
-        <div class="tips">使用方向键或滑动操作</div>
+        <div id="game-tips" class="tips"></div>
     </div>
-    <script src="game.js"></script>
+
+    <script src="2048.js"></script>
+    <script src="snake.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
