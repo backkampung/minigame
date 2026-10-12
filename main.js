@@ -3,8 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
         '2048': new Game2048(),
         Snake: new SnakeGame(),
         Tetris: new TetrisGame(),
-        Chess: window.ChessGame ? new window.ChessGame() : null
+        Chess: null
     };
+
+    // chess.js is an ES module with top-level await, so it may finish loading
+    // after DOMContentLoaded. Create the chess game lazily instead of once at startup.
+    function getChess() {
+        if (!games.Chess && window.ChessGame) games.Chess = new window.ChessGame();
+        return games.Chess;
+    }
     const selector = document.getElementById('game-selector');
     const container = document.getElementById('game-container');
     const board = document.getElementById('game-board');
@@ -58,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openChessSetup() {
         stopCurrentGame();
         currentId = 'Chess';
-        currentGame = games.Chess;
+        currentGame = getChess();
         selector.classList.add('hidden');
         container.classList.remove('hidden');
         title.textContent = 'Human vs Machine';
@@ -71,17 +78,33 @@ document.addEventListener('DOMContentLoaded', () => {
         status.textContent = 'Choose Charlie’s difficulty, then start a match.';
         document.getElementById('human-turn-state').textContent = 'Ready';
         document.getElementById('machine-turn-state').textContent = 'Ready';
-        const startButton = document.getElementById('start-chess');
-        startButton.disabled = !games.Chess;
-        if (!games.Chess) status.textContent = 'Chess failed to load. Please refresh the page, or go back and choose another game.';
+        refreshChessSetup();
     }
+
+    function refreshChessSetup() {
+        if (currentId !== 'Chess') return;
+        const startButton = document.getElementById('start-chess');
+        if (getChess()) {
+            startButton.disabled = false;
+            if (!board.classList.contains('chess-board')) status.textContent = 'Choose Charlie’s difficulty, then start a match.';
+        } else if (window.chessLibraryError) {
+            startButton.disabled = true;
+            status.textContent = 'Chess failed to load. Please refresh the page, or go back and choose another game.';
+        } else {
+            startButton.disabled = true;
+            status.textContent = 'Loading the chess engine…';
+        }
+    }
+
+    window.addEventListener('chess-game-ready', refreshChessSetup);
+    window.addEventListener('chess-game-load-error', refreshChessSetup);
 
     document.getElementById('game-2048').addEventListener('click', () => startGame('2048'));
     document.getElementById('game-snake').addEventListener('click', () => startGame('Snake'));
     document.getElementById('game-tetris').addEventListener('click', () => startGame('Tetris'));
     document.getElementById('game-chess').addEventListener('click', openChessSetup);
     document.getElementById('start-chess').addEventListener('click', () => {
-        if (!games.Chess) return;
+        if (!getChess()) return;
         chessGameStart();
     });
     function chessGameStart() {
@@ -89,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         board.classList.remove('hidden');
         gameControls.classList.remove('hidden');
         document.getElementById('restart-button').classList.remove('hidden');
-        games.Chess.startMatch(difficulty.value);
+        getChess().startMatch(difficulty.value);
     }
 
     document.getElementById('restart-button').addEventListener('click', () => {
