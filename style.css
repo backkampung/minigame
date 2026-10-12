@@ -261,3 +261,90 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
+
+/* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
+.tetris-active {
+    --tetris-chrome: 176px; /* vertical space used by everything except the board */
+    padding: 8px;
+    overscroll-behavior: none;
+}
+.tetris-active .game-container {
+    width: min(100%, 420px);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "back scores new"
+        "board board board"
+        "pad pad pad"
+        "status status status";
+    gap: 8px;
+    align-items: center;
+}
+.tetris-active .back-button { grid-area: back; margin: 0; }
+.tetris-active .game-header { grid-area: scores; justify-content: center; margin: 0; }
+.tetris-active .game-controls { grid-area: new; margin: 0; }
+/* The title stays available to screen readers but no longer takes up space. */
+.tetris-active .game-header h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+.tetris-active .score-box { min-width: 56px; padding: 4px 8px; }
+.tetris-active #score, .tetris-active #best-score { font-size: 1.05rem; }
+
+/* The board is twice as tall as it is wide, so its width is half of the free height. */
+.tetris-active #game-board { grid-area: board; justify-self: center; }
+.tetris-active .tetris-board {
+    width: min(100%, 360px, max(120px, calc((100svh - var(--tetris-chrome)) / 2))) !important;
+    margin: 0 !important;
+}
+
+.tetris-active .tetris-controls {
+    grid-area: pad;
+    width: 100%;
+    margin: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) repeat(2, minmax(0, 1.5fr));
+    gap: 6px;
+}
+.tetris-active .tetris-controls .control-button {
+    min-height: 48px;
+    padding: 4px;
+    font-size: .95rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.tetris-active .tips {
+    grid-area: status;
+    margin: 0;
+    min-height: 2.5em;
+    max-height: 2.5em;
+    overflow: hidden;
+    font-size: .8rem;
+    line-height: 1.25;
+}
+
+/* Short landscape screens: board on the left, buttons on the right. */
+@media (orientation: landscape) and (max-height: 520px) {
+    .tetris-active { --tetris-chrome: 84px; }
+    .tetris-active .game-container {
+        width: min(100%, 640px);
+        column-gap: 16px;
+        grid-template-areas:
+            "back scores new"
+            "board pad pad";
+    }
+    .tetris-active .tetris-board {
+        width: max(120px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
+    }
+    .tetris-active .tetris-controls {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: min(100%, 300px);
+        justify-self: center;
+        align-self: center;
+    }
+    .tetris-active .tetris-controls .control-button { min-height: 56px; }
+    .tetris-active .tips { display: none; }
+}

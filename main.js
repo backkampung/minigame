@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         board.classList.remove('tetris-board', 'chess-board');
         board.classList.remove('hidden');
         board.setAttribute('aria-label', 'Game board');
+        document.body.classList.remove('tetris-active');
         tetrisControls.classList.add('hidden');
         chessSetup.classList.add('hidden');
         chessPlayers.classList.add('hidden');
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title.textContent = id;
         document.getElementById('restart-button').textContent = 'New game';
         tetrisControls.classList.toggle('hidden', id !== 'Tetris');
+        document.body.classList.toggle('tetris-active', id === 'Tetris');
         if (id === '2048') games['2048'].init();
         else if (id === 'Snake') games.Snake.start();
         else if (id === 'Tetris') games.Tetris.start();
