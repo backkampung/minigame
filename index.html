@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#faf8ef">
-    <meta name="description" content="Play 2048, Snake, and Tetris in your browser on desktop or mobile.">
-    <title>Arcade - 2048, Snake, and Tetris</title>
+    <meta name="description" content="Play 2048, Snake, Tetris, and chess in your browser on desktop or mobile.">
+    <title>Arcade - 2048, Snake, Tetris, and Chess</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,6 +17,7 @@
                 <button id="game-2048" class="game-option" type="button">2048</button>
                 <button id="game-snake" class="game-option" type="button">Snake</button>
                 <button id="game-tetris" class="game-option" type="button">Tetris</button>
+                <button id="game-chess" class="game-option" type="button">Human vs Machine</button>
             </div>
         </section>
 
@@ -28,10 +29,24 @@
                     <div class="score-box"><span class="score-label">Score</span><span id="score">0</span></div>
                     <div class="score-box"><span class="score-label">Best</span><span id="best-score">0</span></div>
                 </div>
+                <div id="chess-players" class="score-group chess-players hidden" aria-live="polite">
+                    <div class="score-box"><span class="score-label">You · White</span><span id="human-turn-state">Ready</span></div>
+                    <div class="score-box"><span class="score-label">Charlie · Black</span><span id="machine-turn-state">Ready</span></div>
+                </div>
             </div>
             <div class="game-controls">
                 <button id="restart-button" class="control-button" type="button">New game</button>
             </div>
+            <section id="chess-setup" class="chess-setup hidden" aria-label="Chess game setup">
+                <label for="chess-difficulty">Charlie’s difficulty</label>
+                <select id="chess-difficulty" class="difficulty-select">
+                    <option value="easy">Easy</option>
+                    <option value="moderate" selected>Moderate</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <p>You play White. Charlie (Machine) plays Black.</p>
+                <button id="start-chess" class="control-button" type="button">Start match</button>
+            </section>
             <div id="game-board" role="grid" aria-label="Game board"></div>
             <div id="tetris-controls" class="tetris-controls hidden" aria-label="Tetris controls">
                 <button class="control-button" type="button" data-action="left" aria-label="Move left">←</button>
@@ -41,12 +56,14 @@
                 <button class="control-button" type="button" data-action="drop" aria-label="Drop piece">Drop</button>
                 <button class="control-button" type="button" data-action="pause" aria-label="Pause or resume">Pause</button>
             </div>
+            <ol id="chess-move-list" class="chess-move-list hidden" aria-label="Move history"></ol>
             <p id="game-status" class="tips" aria-live="polite">Use the arrow keys or swipe the board.</p>
         </section>
     </main>
     <script src="2048.js"></script>
     <script src="snake.js"></script>
     <script src="tetris.js"></script>
+    <script type="module" src="chess.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
