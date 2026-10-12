@@ -1,7 +1,5 @@
-const CHESS_MODULE_URL = 'https://cdn.jsdelivr.net/npm/chess.js@1.4.0/dist/esm/chess.js';
-
 try {
-    const { Chess } = await import(CHESS_MODULE_URL);
+    const { Chess } = await import('./chess-engine.js');
 
     class ChessGame {
         constructor() {
