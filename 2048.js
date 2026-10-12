@@ -3,277 +3,188 @@ class Game2048 {
         this.size = 4;
         this.board = [];
         this.score = 0;
-        this.highScore = parseInt(localStorage.getItem('2048-highScore')) || 0;
+        this.highScore = this.readHighScore();
+        this.isActive = false;
         this.isAnimating = false;
-        this.isActive = false; // 新增：游戏激活状态
         this.touchStartX = 0;
         this.touchStartY = 0;
-        
-        // 绑定事件处理器到实例，便于移除
         this.keydownHandler = this.handleKeydown.bind(this);
         this.touchStartHandler = this.handleTouchStart.bind(this);
         this.touchEndHandler = this.handleTouchEnd.bind(this);
     }
 
+    readHighScore() {
+        try { return Number(localStorage.getItem('2048-highScore')) || 0; }
+        catch { return 0; }
+    }
+
+    saveHighScore() {
+        try { localStorage.setItem('2048-highScore', String(this.highScore)); }
+        catch { /* The game still works when storage is unavailable. */ }
+    }
+
     init() {
-        // 清理之前的状态
         this.cleanup();
-        
-        document.querySelectorAll('.game-over').forEach(el => el.remove());
-        const container = document.getElementById('game-board');
-        
-        // 强制终止所有动画
-        container.querySelectorAll('.cell').forEach(cell => {
-            cell.style.transition = 'none';
-            cell.style.animation = 'none';
-        });
-        
-        container.innerHTML = '';
-        
-        // 重置游戏逻辑状态
         this.board = Array.from({ length: this.size }, () => Array(this.size).fill(0));
         this.score = 0;
-        document.getElementById('score').textContent = this.score;
         this.isAnimating = false;
-        this.isActive = true; // 激活游戏
-        
+        this.isActive = true;
         this.addNewTile();
         this.addNewTile();
         this.updateBoard();
         this.bindEvents();
+        this.updateScores();
+        this.updateStatus('Use the arrow keys or swipe the board. Reach 2048 to win.');
     }
 
-    // 新增：清理方法
     cleanup() {
         this.isActive = false;
-        this.removeEvents();
         this.isAnimating = false;
+        this.removeEvents();
     }
 
     addNewTile() {
-        const emptyCells = [];
-        this.board.forEach((row, i) => {
-            row.forEach((cell, j) => {
-                if (cell === 0) emptyCells.push({x: i, y: j});
-            });
-        });
-
-        if (emptyCells.length > 0) {
-            const {x, y} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            this.board[x][y] = Math.random() < 0.9 ? 2 : 4;
-        }
+        const empty = [];
+        this.board.forEach((row, y) => row.forEach((value, x) => {
+            if (value === 0) empty.push({ x, y });
+        }));
+        if (!empty.length) return;
+        const { x, y } = empty[Math.floor(Math.random() * empty.length)];
+        this.board[y][x] = Math.random() < 0.9 ? 2 : 4;
     }
 
     async move(direction) {
         if (!this.isActive || this.isAnimating || this.isGameOver()) return;
-        
-        const oldBoard = JSON.stringify(this.board);
-        let moved = false;
-
-        switch(direction) {
-            case 'left': moved = this.moveHorizontal(true); break;
-            case 'right': moved = this.moveHorizontal(false); break;
-            case 'up': moved = this.moveVertical(true); break;
-            case 'down': moved = this.moveVertical(false); break;
+        const before = this.board.map(row => row.join(',')).join(';');
+        let gained = 0;
+        const next = Array.from({ length: this.size }, () => Array(this.size).fill(0));
+        for (let i = 0; i < this.size; i++) {
+            const values = [];
+            for (let j = 0; j < this.size; j++) {
+                const y = direction === 'up' || direction === 'down' ? j : i;
+                const x = direction === 'left' || direction === 'right' ? j : i;
+                values.push(this.board[y][x]);
+            }
+            if (direction === 'right' || direction === 'down') values.reverse();
+            const compact = values.filter(Boolean);
+            const merged = [];
+            for (let j = 0; j < compact.length; j++) {
+                if (compact[j] === compact[j + 1]) {
+                    const value = compact[j] * 2;
+                    merged.push(value);
+                    gained += value;
+                    j++;
+                } else merged.push(compact[j]);
+            }
+            while (merged.length < this.size) merged.push(0);
+            if (direction === 'right' || direction === 'down') merged.reverse();
+            for (let j = 0; j < this.size; j++) {
+                const y = direction === 'up' || direction === 'down' ? j : i;
+                const x = direction === 'left' || direction === 'right' ? j : i;
+                next[y][x] = merged[j];
+            }
         }
+        this.board = next;
+        const after = this.board.map(row => row.join(',')).join(';');
+        if (before === after) return;
 
-        if (moved) {
-            this.isAnimating = true;
-            await this.animateTiles();
-            
-            this.addNewTile();
-            this.updateBoard();
-            
-            if (this.isGameOver()) {
-                this.showGameOver();
-            }
-            
-            if (this.score > this.highScore) {
-                this.highScore = this.score;
-                localStorage.setItem('2048-highScore', this.highScore);
-            }
-            
-            this.isAnimating = false;
+        this.isAnimating = true;
+        this.score += gained;
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            this.saveHighScore();
         }
-    }
+        this.addNewTile();
+        this.updateBoard();
+        this.updateScores();
+        await new Promise(resolve => setTimeout(resolve, 120));
+        this.isAnimating = false;
 
-    moveHorizontal(leftDirection) {
-        let moved = false;
-        this.board.forEach(row => {
-            const nonZero = row.filter(cell => cell !== 0);
-            const newRow = [];
-            let prev = null;
-
-            for (const cell of leftDirection ? nonZero : nonZero.reverse()) {
-                if (prev === cell) {
-                    newRow[newRow.length - 1] *= 2;
-                    this.score += newRow[newRow.length - 1];
-                    prev = null;
-                } else {
-                    newRow.push(cell);
-                    prev = cell;
-                }
-            }
-
-            while (newRow.length < this.size) newRow.push(0);
-            const finalRow = leftDirection ? newRow : newRow.reverse();
-            
-            if (row.join(',') !== finalRow.join(',')) {
-                row.splice(0, this.size, ...finalRow);
-                moved = true;
-            }
-        });
-        return moved;
-    }
-
-    moveVertical(upDirection) {
-        this.transpose();
-        const moved = this.moveHorizontal(upDirection);
-        this.transpose();
-        return moved;
-    }
-
-    transpose() {
-        this.board = this.board[0].map((_, col) => 
-            this.board.map(row => row[col])
-        );
-    }
-
-    async animateTiles() {
-        return new Promise(resolve => {
-            requestAnimationFrame(() => {
-                const tiles = document.querySelectorAll('.cell');
-                tiles.forEach(tile => {
-                    tile.style.transition = 'none';
-                    const rect = tile.getBoundingClientRect();
-                    tile.style.left = `${rect.left}px`;
-                    tile.style.top = `${rect.top}px`;
-                });
-                
-                requestAnimationFrame(() => {
-                    tiles.forEach(tile => {
-                        tile.style.transition = '';
-                        const x = parseInt(tile.dataset.x);
-                        const y = parseInt(tile.dataset.y);
-                        tile.style.left = `${(x * 24) + 2}%`;
-                        tile.style.top = `${(y * 24) + 2}%`;
-                    });
-                    setTimeout(resolve, 150);
-                });
-            });
-        });
+        if (this.board.some(row => row.includes(2048))) {
+            this.endGame(true);
+        } else if (this.isGameOver()) {
+            this.endGame(false);
+        }
     }
 
     updateBoard() {
-        const container = document.getElementById('game-board');
-        const oldTiles = Array.from(container.children);
-        
-        this.board.forEach((row, y) => {
-            row.forEach((value, x) => {
-                if (value === 0) return;
-                
-                const existingTile = oldTiles.find(t => 
-                    parseInt(t.dataset.x) === x && 
-                    parseInt(t.dataset.y) === y
-                );
-                
-                if (!existingTile) {
-                    const tile = document.createElement('div');
-                    tile.className = `cell tile-${value} animate-appear`;
-                    tile.textContent = value;
-                    tile.dataset.x = x;
-                    tile.dataset.y = y;
-                    tile.style.left = `${(x * 24) + 2}%`;
-                    tile.style.top = `${(y * 24) + 2}%`;
-                    container.appendChild(tile);
-                } else {
-                    if (parseInt(existingTile.textContent) !== value) {
-                        existingTile.className = `cell tile-${value} animate-merge`;
-                        existingTile.textContent = value;
-                    }
-                    existingTile.style.zIndex = 1;
-                }
-            });
-        });
-
-        oldTiles.forEach(tile => {
-            const x = parseInt(tile.dataset.x);
-            const y = parseInt(tile.dataset.y);
-            if (this.board[y][x] === 0) {
-                tile.remove();
-            }
-        });
-
-        document.getElementById('score').textContent = this.score;
+        const board = document.getElementById('game-board');
+        board.replaceChildren();
+        this.board.forEach((row, y) => row.forEach((value, x) => {
+            const cell = document.createElement('div');
+            cell.className = value ? `cell tile-${value}${value >= 128 ? ' tile-large' : ''}` : 'cell';
+            cell.setAttribute('role', 'gridcell');
+            cell.setAttribute('aria-label', value ? `Tile ${value}` : 'Empty');
+            if (value) cell.textContent = value;
+            board.appendChild(cell);
+        }));
     }
 
-    showGameOver() {
+    updateScores() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('best-score').textContent = this.highScore;
+    }
+
+    updateStatus(message) {
+        const status = document.getElementById('game-status');
+        if (status) status.textContent = message;
+    }
+
+    endGame(won) {
+        this.cleanup();
+        this.updateStatus(won ? 'You reached 2048! Start a new game to play again.' : 'No more moves. Start a new game and try again.');
         const overlay = document.createElement('div');
         overlay.className = 'game-over';
-        overlay.textContent = '游戏结束！';
+        overlay.setAttribute('role', 'status');
+        overlay.innerHTML = `<div class="game-over-card"><h2>${won ? 'You win!' : 'Game over'}</h2><p>${won ? 'You made a 2048 tile.' : 'There are no more moves.'}</p><button class="control-button" type="button">Play again</button></div>`;
+        overlay.querySelector('button').addEventListener('click', () => this.init());
         document.getElementById('game-board').appendChild(overlay);
     }
 
     isGameOver() {
-        return !this.board.some((row, y) =>
-            row.some((cell, x) =>
-                cell === 0 ||
-                (x < 3 && cell === row[x + 1]) ||
-                (y < 3 && cell === this.board[y + 1][x])
-            )
-        );
+        return !this.board.some((row, y) => row.some((value, x) =>
+            value === 0 || (x < this.size - 1 && value === row[x + 1]) ||
+            (y < this.size - 1 && value === this.board[y + 1][x])
+        ));
     }
 
-    // 重构：键盘事件处理器
-    handleKeydown(e) {
-        if (!this.isActive) return; // 只有激活状态才响应
-        
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-            e.preventDefault();
-            this.move(e.key.replace('Arrow', '').toLowerCase());
+    handleKeydown(event) {
+        if (!this.isActive || event.altKey || event.ctrlKey || event.metaKey) return;
+        const keyMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
+        if (keyMap[event.key]) {
+            event.preventDefault();
+            this.move(keyMap[event.key]);
         }
     }
 
-    // 重构：触摸开始处理器
-    handleTouchStart(e) {
-        if (!this.isActive) return;
-        
-        this.touchStartX = e.touches[0].clientX;
-        this.touchStartY = e.touches[0].clientY;
+    handleTouchStart(event) {
+        if (!this.isActive || event.touches.length !== 1) return;
+        this.touchStartX = event.touches[0].clientX;
+        this.touchStartY = event.touches[0].clientY;
     }
 
-    // 重构：触摸结束处理器
-    handleTouchEnd(e) {
-        if (!this.isActive) return;
-        
-        const dx = e.changedTouches[0].clientX - this.touchStartX;
-        const dy = e.changedTouches[0].clientY - this.touchStartY;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-
-        if (Math.max(absDx, absDy) < 30) return;
-
-        const direction = absDx > absDy 
-            ? (dx > 0 ? 'right' : 'left')
-            : (dy > 0 ? 'down' : 'up');
-        
-        this.move(direction);
+    handleTouchEnd(event) {
+        if (!this.isActive || !event.changedTouches.length) return;
+        const dx = event.changedTouches[0].clientX - this.touchStartX;
+        const dy = event.changedTouches[0].clientY - this.touchStartY;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+        this.move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
     }
 
     bindEvents() {
-        // 移除旧的事件监听器（防止重复绑定）
         this.removeEvents();
-        
-        // 绑定新的事件监听器
         document.addEventListener('keydown', this.keydownHandler);
-        document.addEventListener('touchstart', this.touchStartHandler, { passive: true });
-        document.addEventListener('touchend', this.touchEndHandler);
+        const board = document.getElementById('game-board');
+        board.addEventListener('touchstart', this.touchStartHandler, { passive: true });
+        board.addEventListener('touchend', this.touchEndHandler, { passive: true });
     }
 
-    // 新增：移除事件监听器
     removeEvents() {
         document.removeEventListener('keydown', this.keydownHandler);
-        document.removeEventListener('touchstart', this.touchStartHandler);
-        document.removeEventListener('touchend', this.touchEndHandler);
+        const board = document.getElementById('game-board');
+        if (board) {
+            board.removeEventListener('touchstart', this.touchStartHandler);
+            board.removeEventListener('touchend', this.touchEndHandler);
+        }
     }
 }
