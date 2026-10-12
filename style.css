@@ -71,6 +71,34 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     -webkit-user-select: none;
     user-select: none;
 }
+.tetris-board {
+    width: min(100%, 360px, 48svh) !important;
+    margin-inline: auto;
+    grid-template-columns: repeat(10, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(20, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    padding: 6px !important;
+    aspect-ratio: 1 / 2 !important;
+}
+.tetris-cell { min-width: 0; min-height: 0; border-radius: 2px; background: rgb(238 228 218 / 22%); }
+.tetris-cell[class*="tetromino-"] { box-shadow: inset 0 0 0 2px rgb(0 0 0 / 12%); }
+.tetromino-i { background: #eee4da; }
+.tetromino-j { background: #ede0c8; }
+.tetromino-l { background: #f2b179; }
+.tetromino-o { background: #f59563; }
+.tetromino-s { background: #f67c5f; }
+.tetromino-t { background: #f65e3b; }
+.tetromino-z { background: #edcf72; }
+
+.tetris-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: min(100%, 360px, 48svh);
+    margin: 12px auto 0;
+}
+.tetris-controls .control-button { min-height: 48px; padding: 8px 12px; font-size: 1.1rem; }
+.tetris-overlay { border: 0; }
 .cell {
     display: flex;
     min-width: 0;
@@ -128,6 +156,8 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 @media (orientation: landscape) and (max-height: 520px) {
     body { align-items: flex-start; padding-block: 8px; }
     .game-container { width: min(70vh, 500px); }
+    .tetris-board { width: min(50vw, 180px, 40svh) !important; }
+    .tetris-controls { width: min(50vw, 180px, 40svh); }
     .game-header { margin-bottom: 6px; }
     .back-button { margin-bottom: 6px; }
     .game-controls { margin-bottom: 6px; }
