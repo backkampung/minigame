@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const game2048 = new Game2048();
     const snakeGame = new SnakeGame();
+    const tetrisGame = new TetrisGame();
     const selector = document.getElementById('game-selector');
     const container = document.getElementById('game-container');
     const board = document.getElementById('game-board');
     const title = document.getElementById('game-title');
     const status = document.getElementById('game-status');
+    const tetrisControls = document.getElementById('tetris-controls');
     let currentGame = null;
     let currentId = null;
 
@@ -14,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGame = null;
         currentId = null;
         board.replaceChildren();
+        board.classList.remove('tetris-board');
+        tetrisControls.classList.add('hidden');
         document.getElementById('score').textContent = '0';
         document.getElementById('best-score').textContent = '0';
     }
@@ -21,17 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function startGame(id) {
         stopCurrentGame();
         currentId = id;
-        currentGame = id === '2048' ? game2048 : snakeGame;
+        currentGame = id === '2048' ? game2048 : id === 'Snake' ? snakeGame : tetrisGame;
         selector.classList.add('hidden');
         container.classList.remove('hidden');
         title.textContent = id;
         document.getElementById('restart-button').textContent = 'New game';
+        tetrisControls.classList.toggle('hidden', id !== 'Tetris');
         if (id === '2048') game2048.init();
-        else snakeGame.start();
+        else if (id === 'Snake') snakeGame.start();
+        else tetrisGame.start();
     }
 
     document.getElementById('game-2048').addEventListener('click', () => startGame('2048'));
     document.getElementById('game-snake').addEventListener('click', () => startGame('Snake'));
+    document.getElementById('game-tetris').addEventListener('click', () => startGame('Tetris'));
     document.getElementById('restart-button').addEventListener('click', () => {
         if (currentId) startGame(currentId);
     });
