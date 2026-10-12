@@ -16,6 +16,7 @@
             <div class="game-options">
                 <button id="game-2048" class="game-option" type="button">2048</button>
                 <button id="game-snake" class="game-option" type="button">Snake</button>
+                <button id="game-tetris" class="game-option" type="button">Tetris</button>
             </div>
         </section>
 
@@ -32,11 +33,20 @@
                 <button id="restart-button" class="control-button" type="button">New game</button>
             </div>
             <div id="game-board" role="grid" aria-label="Game board"></div>
+            <div id="tetris-controls" class="tetris-controls hidden" aria-label="Tetris controls">
+                <button class="control-button" type="button" data-action="left" aria-label="Move left">←</button>
+                <button class="control-button" type="button" data-action="rotate" aria-label="Rotate piece">↻</button>
+                <button class="control-button" type="button" data-action="right" aria-label="Move right">→</button>
+                <button class="control-button" type="button" data-action="down" aria-label="Move down">↓</button>
+                <button class="control-button" type="button" data-action="drop" aria-label="Drop piece">Drop</button>
+                <button class="control-button" type="button" data-action="pause" aria-label="Pause or resume">Pause</button>
+            </div>
             <p id="game-status" class="tips" aria-live="polite">Use the arrow keys or swipe the board.</p>
         </section>
     </main>
     <script src="2048.js"></script>
     <script src="snake.js"></script>
+    <script src="tetris.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
