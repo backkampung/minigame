@@ -99,6 +99,98 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 }
 .tetris-controls .control-button { min-height: 48px; padding: 8px 12px; font-size: 1.1rem; }
 .tetris-overlay { border: 0; }
+
+.chess-setup {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: min(100%, 480px);
+    margin: 12px auto 18px;
+    padding: clamp(16px, 5vw, 24px);
+    border-radius: 10px;
+    background: #eee4da;
+    text-align: center;
+}
+.chess-setup label { font-weight: 750; }
+.chess-setup p { margin: 0 0 4px; }
+.difficulty-select {
+    width: min(100%, 280px);
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #bbada0;
+    border-radius: 7px;
+    background: #fffdf8;
+    color: var(--text);
+    font: inherit;
+}
+.chess-setup .control-button { min-width: 150px; }
+.chess-players .score-box { min-width: 118px; }
+.chess-players .score-box > span:last-child { display: block; font-size: .9rem; font-weight: 800; white-space: nowrap; }
+
+.chess-board {
+    width: min(100%, 480px, 68svh) !important;
+    margin: 0 auto;
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    padding: 6px !important;
+    aspect-ratio: 1 !important;
+    background: var(--board) !important;
+    touch-action: manipulation !important;
+}
+.chess-square {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 2px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+.square-light { background: #eee4da; }
+.square-dark { background: #9b806b; }
+.chess-square.selected { background: #edcf72; }
+.chess-square.last-move { box-shadow: inset 0 0 0 3px rgb(246 200 75 / 70%); }
+.chess-piece {
+    position: relative;
+    z-index: 1;
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif;
+    font-size: clamp(1.55rem, 10vw, 3.25rem);
+    line-height: 1;
+    pointer-events: none;
+}
+.piece-w { color: #fffaf0; text-shadow: 0 1px 2px rgb(45 37 29 / 80%), 0 0 1px #3f352c; }
+.piece-b { color: #3e3935; text-shadow: 0 1px 1px rgb(255 255 255 / 45%); }
+.square-coordinate { position: absolute; z-index: 2; font-size: clamp(.52rem, 2vw, .72rem); font-weight: 800; line-height: 1; pointer-events: none; }
+.rank-coordinate { top: 3px; left: 4px; }
+.file-coordinate { right: 4px; bottom: 3px; }
+.square-light .square-coordinate { color: #8f7a66; }
+.square-dark .square-coordinate { color: #faf8ef; }
+.legal-target::after { position: absolute; width: 24%; aspect-ratio: 1; border-radius: 50%; background: rgb(65 95 65 / 55%); content: ""; }
+.capture-target::after { position: absolute; inset: 5%; border: 4px solid rgb(113 57 42 / 64%); border-radius: 50%; content: ""; }
+.chess-overlay { border: 0; }
+.chess-overlay .game-over-card { width: min(100%, 340px); }
+.chess-move-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    max-height: 110px;
+    overflow-y: auto;
+    margin: 12px auto 0;
+    padding: 10px 14px 10px 34px;
+    border-radius: 8px;
+    background: #eee4da;
+    color: var(--text);
+}
+.chess-move-list li { min-width: 72px; padding: 2px 4px; }
+.promotion-overlay { z-index: 8; }
+.promotion-options { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
+.promotion-options button { min-width: 48px; min-height: 48px; border: 0; border-radius: 7px; background: #eee4da; color: var(--text); font-size: 2rem; cursor: pointer; }
+.promotion-cancel { background: #9b806b; }
 .cell {
     display: flex;
     min-width: 0;
@@ -158,6 +250,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     .game-container { width: min(70vh, 500px); }
     .tetris-board { width: min(50vw, 180px, 40svh) !important; }
     .tetris-controls { width: min(50vw, 180px, 40svh); }
+    .chess-board { width: min(70vh, 400px) !important; }
     .game-header { margin-bottom: 6px; }
     .back-button { margin-bottom: 6px; }
     .game-controls { margin-bottom: 6px; }
