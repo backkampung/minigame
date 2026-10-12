@@ -1,33 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>游戏合集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#faf8ef">
+    <meta name="description" content="Play 2048 and Snake in your browser on desktop or mobile.">
+    <title>Arcade - 2048 and Snake</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-selector" class="game-selector">
-        <h1>选择游戏</h1>
-        <div class="game-options">
-            <button id="game-2048" class="game-option">2048</button>
-            <button id="game-snake" class="game-option">贪吃蛇</button>
-        </div>
-    </div>
-
-    <div id="game-container" class="game-container hidden">
-        <button id="back-button" class="back-button">返回</button>
-        <div class="game-header">
-            <h1 id="game-title">游戏</h1>
-            <div class="score-box">
-                <div class="score-label">分数</div>
-                <div id="score">0</div>
+    <main>
+        <section id="game-selector" class="game-selector" aria-labelledby="menu-title">
+            <h1 id="menu-title">Browser Arcade</h1>
+            <p class="intro">Choose a game to play</p>
+            <div class="game-options">
+                <button id="game-2048" class="game-option" type="button">2048</button>
+                <button id="game-snake" class="game-option" type="button">Snake</button>
             </div>
-        </div>
-        <div id="game-board"></div>
-        <div id="game-tips" class="tips"></div>
-    </div>
+        </section>
 
+        <section id="game-container" class="game-container hidden" aria-labelledby="game-title">
+            <button id="back-button" class="back-button" type="button">← Games</button>
+            <div class="game-header">
+                <h1 id="game-title">Game</h1>
+                <div class="score-group" aria-live="polite">
+                    <div class="score-box"><span class="score-label">Score</span><span id="score">0</span></div>
+                    <div class="score-box"><span class="score-label">Best</span><span id="best-score">0</span></div>
+                </div>
+            </div>
+            <div class="game-controls">
+                <button id="restart-button" class="control-button" type="button">New game</button>
+            </div>
+            <div id="game-board" role="grid" aria-label="Game board"></div>
+            <p id="game-status" class="tips" aria-live="polite">Use the arrow keys or swipe the board.</p>
+        </section>
+    </main>
     <script src="2048.js"></script>
     <script src="snake.js"></script>
     <script src="main.js"></script>
