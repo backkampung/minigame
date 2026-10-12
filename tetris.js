@@ -136,6 +136,7 @@ class TetrisGame {
         }
         this.score += distance * 2;
         this.updateHighScore();
+        this.updateScores();
         this.lockPiece();
     }
 
@@ -170,6 +171,7 @@ class TetrisGame {
             this.updateScores();
         }
         this.piece = null;
+        this.updateScores();
         this.render();
         this.spawnPiece();
     }
@@ -177,8 +179,6 @@ class TetrisGame {
     updateHighScore() {
         if (this.score <= this.highScore) return;
         this.highScore = this.score;
-        try { localStorage.setItem('tetris-highScore', String(this.highScore)); }
-        catch { /* Storage is optional; the game remains playable. */ }
         try { localStorage.setItem('tetris-highScore', String(this.highScore)); }
         catch { /* Storage is optional; the game remains playable. */ }
     }
