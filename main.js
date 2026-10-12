@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tetrisControls = document.getElementById('tetris-controls');
     const chessSetup = document.getElementById('chess-setup');
     const chessPlayers = document.getElementById('chess-players');
+    const gameHeader = document.querySelector('.game-header');
     const chessMoveList = document.getElementById('chess-move-list');
     const scoreGroup = document.querySelector('.score-group:not(.chess-players)');
     const gameControls = document.querySelector('.game-controls');
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tetrisControls.classList.add('hidden');
         chessSetup.classList.add('hidden');
         chessPlayers.classList.add('hidden');
+        gameHeader.classList.remove('chess-layout');
         chessMoveList.classList.add('hidden');
         scoreGroup.classList.remove('hidden');
         gameControls.classList.remove('hidden');
@@ -60,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selector.classList.add('hidden');
         container.classList.remove('hidden');
         title.textContent = 'Human vs Machine';
+        gameHeader.classList.add('chess-layout');
         scoreGroup.classList.add('hidden');
         chessPlayers.classList.remove('hidden');
         chessSetup.classList.remove('hidden');
@@ -70,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('machine-turn-state').textContent = 'Ready';
         const startButton = document.getElementById('start-chess');
         startButton.disabled = !games.Chess;
-        if (!games.Chess) status.textContent = 'Chess could not load. Check your internet connection and refresh the page.';
+        if (!games.Chess) status.textContent = 'Chess failed to load. Please refresh the page, or go back and choose another game.';
     }
 
     document.getElementById('game-2048').addEventListener('click', () => startGame('2048'));
