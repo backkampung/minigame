@@ -1,4 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 document.addEventListener('DOMContentLoaded', () => {
     const games = {
         '2048': new Game2048(),
