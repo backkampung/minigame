@@ -1,3 +1,4 @@
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 class Game2048 {
     constructor() {
         this.size = 4;
@@ -6,6 +7,7 @@ class Game2048 {
         this.highScore = this.readHighScore();
         this.isActive = false;
         this.isAnimating = false;
+        this.runId = 0;
         this.touchStartX = 0;
         this.touchStartY = 0;
         this.keydownHandler = this.handleKeydown.bind(this);
@@ -38,6 +40,7 @@ class Game2048 {
     }
 
     cleanup() {
+        this.runId++;
         this.isActive = false;
         this.isAnimating = false;
         this.removeEvents();
@@ -55,6 +58,7 @@ class Game2048 {
 
     async move(direction) {
         if (!this.isActive || this.isAnimating || this.isGameOver()) return;
+        const runId = this.runId;
         const before = this.board.map(row => row.join(',')).join(';');
         let gained = 0;
         const next = Array.from({ length: this.size }, () => Array(this.size).fill(0));
@@ -98,6 +102,8 @@ class Game2048 {
         this.updateBoard();
         this.updateScores();
         await new Promise(resolve => setTimeout(resolve, 120));
+        // The player may have left or restarted the game during the animation delay.
+        if (!this.isActive || runId !== this.runId) return;
         this.isAnimating = false;
 
         if (this.board.some(row => row.includes(2048))) {
@@ -188,3 +194,4 @@ class Game2048 {
         }
     }
 }
+
