@@ -1,4 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 # Browser Arcade
 
 A lightweight browser game collection with 2048, Snake, Tetris, and chess. The site is static and needs no build step. Chess uses the locally bundled `chess-engine.js` rules library, so gameplay does not depend on a third-party CDN. See the [chess.js project](https://github.com/jhlywa/chess.js) and the included `LICENSE-chess.js.txt`.
