@@ -1,22 +1,70 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
-node:fs:484
-    return binding.readFileUtf8(path, stringToFlags(options.flag));
-                   ^
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#faf8ef">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src 'none'; upgrade-insecure-requests">
+    <meta name="description" content="Play 2048, Snake, Tetris, and chess in your browser on desktop or mobile.">
+    <title>Arcade - 2048, Snake, Tetris, and Chess</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <section id="game-selector" class="game-selector" aria-labelledby="menu-title">
+            <h1 id="menu-title">Browser Arcade</h1>
+            <p class="intro">Choose a game to play</p>
+            <div class="game-options">
+                <button id="game-2048" class="game-option" type="button">2048</button>
+                <button id="game-snake" class="game-option" type="button">Snake</button>
+                <button id="game-tetris" class="game-option" type="button">Tetris</button>
+                <button id="game-chess" class="game-option" type="button">Chess Game (Human vs Machine)</button>
+            </div>
+        </section>
 
-Error: ENOENT: no such file or directory, open 'C:\Users\Lawrance\Documents\Codex\2026-10-12\w\UsersLawranceOneDriveDesktop8-game - V1\index.html'
-    at Object.readFileSync (node:fs:484:20)
-    at [eval]:1:36
-    at runScriptInThisContext (node:internal/vm:219:10)
-    at node:internal/process/execution:451:12
-    at [eval]-wrapper:6:24
-    at runScriptInContext (node:internal/process/execution:449:60)
-    at evalFunction (node:internal/process/execution:283:30)
-    at evalTypeScript (node:internal/process/execution:295:3)
-    at node:internal/main/eval_string:71:3 {
-  errno: -4058,
-  code: 'ENOENT',
-  syscall: 'open',
-  path: 'C:\\Users\\Lawrance\\Documents\\Codex\\2026-10-12\\w\\UsersLawranceOneDriveDesktop\x848-game - V1\\index.html'
-}
-
-Node.js v24.19.0
+        <section id="game-container" class="game-container hidden" aria-labelledby="game-title">
+            <button id="back-button" class="back-button" type="button">← Games</button>
+            <div class="game-header">
+                <h1 id="game-title">Game</h1>
+                <div class="score-group" aria-live="polite">
+                    <div class="score-box"><span class="score-label">Score</span><span id="score">0</span></div>
+                    <div class="score-box"><span class="score-label">Best</span><span id="best-score">0</span></div>
+                </div>
+                <div id="chess-players" class="score-group chess-players hidden" aria-live="polite">
+                    <div class="score-box"><span class="score-label">You · White</span><span id="human-turn-state">Ready</span></div>
+                    <div class="score-box"><span class="score-label">Charlie · Black</span><span id="machine-turn-state">Ready</span></div>
+                </div>
+            </div>
+            <div id="game-controls" class="game-controls">
+                <button id="restart-button" class="control-button" type="button">New game</button>
+            </div>
+            <section id="chess-setup" class="chess-setup hidden" aria-label="Chess game setup">
+                <label for="chess-difficulty">Charlie’s difficulty</label>
+                <select id="chess-difficulty" class="difficulty-select">
+                    <option value="easy">Easy</option>
+                    <option value="moderate" selected>Moderate</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <p>You play White. Charlie (Machine) plays Black.</p>
+                <button id="start-chess" class="control-button" type="button">Start match</button>
+            </section>
+            <div id="game-board" role="grid" aria-label="Game board"></div>
+            <div id="tetris-controls" class="tetris-controls hidden" aria-label="Tetris controls">
+                <button class="control-button" type="button" data-action="left" aria-label="Move left">←</button>
+                <button class="control-button" type="button" data-action="rotate" aria-label="Rotate piece">↻</button>
+                <button class="control-button" type="button" data-action="right" aria-label="Move right">→</button>
+                <button class="control-button" type="button" data-action="down" aria-label="Move down">↓</button>
+                <button class="control-button" type="button" data-action="drop" aria-label="Drop piece">Drop</button>
+                <button class="control-button" type="button" data-action="pause" aria-label="Pause or resume">Pause</button>
+            </div>
+            <ol id="chess-move-list" class="chess-move-list hidden" aria-label="Move history"></ol>
+            <p id="game-status" class="tips" aria-live="polite">Use the arrow keys or swipe the board.</p>
+        </section>
+    </main>
+    <script src="2048.js"></script>
+    <script src="snake.js"></script>
+    <script src="tetris.js"></script>
+    <script type="module" src="chess.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
