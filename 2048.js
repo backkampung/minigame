@@ -1,4 +1,3 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
 class Game2048 {
     constructor() {
         this.size = 4;
