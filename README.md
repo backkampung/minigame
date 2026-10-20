@@ -1,18 +1,10 @@
 # Browser Arcade
 
-A lightweight browser game collection with 2048, Snake, Tetris, and chess. The site is static and needs no build step. Chess uses the locally bundled `chess-engine.js` rules library, so gameplay does not depend on a third-party CDN. See the [chess.js project](https://github.com/jhlywa/chess.js) and the included `LICENSE-chess.js.txt`.
+A lightweight browser game collection with 2048, Snake, Tetris, and chess. The site is static and needs no build step. Chess loads the pinned `chess.js` 1.4.0 rules library from jsDelivr, so an internet connection is needed to play chess. See the [chess.js project](https://github.com/jhlywa/chess.js).
 
 ## Play locally
 
-Serve the folder with a local HTTP server, then open its URL in a modern browser. This avoids browser restrictions on JavaScript modules opened directly from `file://`.
-
-For example, with Node.js installed, run `npx serve .` from this folder and open the URL printed in the terminal.
-
-## Checks
-
-Run the lightweight automated checks with `node --test tests/*.test.mjs`. They validate the JavaScript syntax, bundled chess rules, and 2048 behavior when a game is exited during a move animation.
-
-Before publishing, also open the site on a desktop browser and a phone-sized viewport. Confirm that keyboard controls, touch swipes, Tetris buttons, chess difficulty selection, and the chess board remain usable.
+Open `index.html` in a modern browser. For the most consistent behavior, serve the folder with any static file server.
 
 ## Controls
 
@@ -32,4 +24,3 @@ Best scores are saved in the browser on the current device. Tetris awards points
 4. Open the Pages URL shown in the repository settings after deployment completes.
 
 This project is static and uses relative file paths, which makes it suitable for a repository root or a GitHub Pages project site.
-
