@@ -87,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentId !== 'Chess') return;
         const startButton = document.getElementById('start-chess');
         if (getChess()) {
-            currentGame = games.Chess;
             startButton.disabled = false;
             if (!board.classList.contains('chess-board')) status.textContent = 'Choose Charlie’s difficulty, then start a match.';
         } else if (window.chessLibraryError) {
@@ -102,15 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('chess-game-ready', refreshChessSetup);
     window.addEventListener('chess-game-load-error', refreshChessSetup);
 
-    // If the module file itself fails to load, chess.js cannot dispatch its own
-    // error event. Give the browser time for slower connections, then surface it.
-    window.setTimeout(() => {
-        if (!window.ChessGame && !window.chessLibraryError) {
-            window.chessLibraryError = true;
-            refreshChessSetup();
-        }
-    }, 12000);
-
     document.getElementById('game-2048').addEventListener('click', () => startGame('2048'));
     document.getElementById('game-snake').addEventListener('click', () => startGame('Snake'));
     document.getElementById('game-tetris').addEventListener('click', () => startGame('Tetris'));
@@ -120,14 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         chessGameStart();
     });
     function chessGameStart() {
-        const chessGame = getChess();
-        if (!chessGame) return;
-        currentGame = chessGame;
         chessSetup.classList.add('hidden');
         board.classList.remove('hidden');
         gameControls.classList.remove('hidden');
         document.getElementById('restart-button').classList.remove('hidden');
-        chessGame.startMatch(difficulty.value);
+        getChess().startMatch(difficulty.value);
     }
 
     document.getElementById('restart-button').addEventListener('click', () => {
@@ -141,4 +128,3 @@ document.addEventListener('DOMContentLoaded', () => {
         status.textContent = 'Choose a game to play.';
     });
 });
-
