@@ -1,22 +1,11 @@
-Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
-node:fs:484
-    return binding.readFileUtf8(path, stringToFlags(options.flag));
-                   ^
+# Security Policy
 
-Error: ENOENT: no such file or directory, open 'C:\Users\Lawrance\Documents\Codex\2026-10-12\w\UsersLawranceOneDriveDesktop8-game - V1\SECURITY.md'
-    at Object.readFileSync (node:fs:484:20)
-    at [eval]:1:36
-    at runScriptInThisContext (node:internal/vm:219:10)
-    at node:internal/process/execution:451:12
-    at [eval]-wrapper:6:24
-    at runScriptInContext (node:internal/process/execution:449:60)
-    at evalFunction (node:internal/process/execution:283:30)
-    at evalTypeScript (node:internal/process/execution:295:3)
-    at node:internal/main/eval_string:71:3 {
-  errno: -4058,
-  code: 'ENOENT',
-  syscall: 'open',
-  path: 'C:\\Users\\Lawrance\\Documents\\Codex\\2026-10-12\\w\\UsersLawranceOneDriveDesktop\x848-game - V1\\SECURITY.md'
-}
+# Security Policy
 
-Node.js v24.19.0
+## Supported Versions
+
+Security fixes are made to the latest version on the `main` branch.
+
+## Reporting a Vulnerability
+
+Please report vulnerabilities through GitHub's private vulnerability reporting for this repository when that option is available. If it is unavailable, open a brief issue asking the maintainers for a private contact method. Do not include exploit details or sensitive information in a public issue.
