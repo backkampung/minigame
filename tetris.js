@@ -20,9 +20,10 @@ class TetrisGame {
         this.boardTouchEndHandler = this.handleBoardTouchEnd.bind(this);
         this.touchStartX = 0;
         this.touchStartY = 0;
-        this.touchLastX = 0;
-        this.touchLastY = 0;
         this.touchStartTime = 0;
+        this.touchSwipeDone = false;
+        this.touchLongPressed = false;
+        this.touchLongPressTimer = null;
         this.repeatTimeout = null;
         this.repeatInterval = null;
         this.resetState();
@@ -68,7 +69,7 @@ class TetrisGame {
         if (pauseButton) pauseButton.textContent = 'Pause';
         this.bindEvents();
         this.updateScores();
-        this.setStatus('← → move · ↑ rotate · ↓ soft drop · Space hard drop · P pause');
+        this.setStatus('Swipe = 1 cell · Tap = rotate · Long-press = hard drop');
         this.spawnPiece();
         if (this.isActive) this.startGravity();
     }
@@ -78,6 +79,7 @@ class TetrisGame {
         if (this.gameInterval) clearInterval(this.gameInterval);
         this.gameInterval = null;
         this.stopControlRepeat();
+        this.stopBoardLongPress();
         document.removeEventListener('keydown', this.keydownHandler);
         const controls = document.getElementById('tetris-controls');
         if (controls) {
@@ -298,7 +300,7 @@ class TetrisGame {
         this.isPaused = !this.isPaused;
         const pauseButton = document.querySelector('[data-action="pause"]');
         if (pauseButton) pauseButton.textContent = this.isPaused ? 'Resume' : 'Pause';
-        this.setStatus(this.isPaused ? 'Paused. Press P or tap Resume to continue.' : '← → move · ↑ rotate · ↓ soft drop · Space hard drop · P pause');
+        this.setStatus(this.isPaused ? 'Paused. Press P or tap Resume to continue.' : 'Swipe = 1 cell · Tap = rotate · Long-press = hard drop');
         this.render();
     }
 
@@ -434,43 +436,65 @@ class TetrisGame {
         this.stopControlRepeat();
     }
 
+    stopBoardLongPress() {
+        if (this.touchLongPressTimer) { clearTimeout(this.touchLongPressTimer); this.touchLongPressTimer = null; }
+    }
+
     handleBoardTouchStart(event) {
         if (!this.isActive || this.isPaused || event.touches.length !== 1) return;
         const touch = event.touches[0];
         this.touchStartX = touch.clientX;
         this.touchStartY = touch.clientY;
-        this.touchLastX = touch.clientX;
-        this.touchLastY = touch.clientY;
         this.touchStartTime = Date.now();
+        this.touchSwipeDone = false;
+        this.touchLongPressed = false;
+        // Long-press = hard drop. Fires only if the finger stays put;
+        // any swipe cancels it, and lifting the finger cancels it.
+        this.stopBoardLongPress();
+        this.touchLongPressTimer = setTimeout(() => {
+            this.touchLongPressTimer = null;
+            if (this.isActive && !this.isPaused && !this.touchSwipeDone) {
+                this.touchLongPressed = true;
+                this.hardDrop();
+            }
+        }, 500);
     }
 
     handleBoardTouchMove(event) {
         if (!this.isActive || this.isPaused || event.touches.length !== 1) return;
+        if (this.touchSwipeDone || this.touchLongPressed) return;
         const touch = event.touches[0];
-        const dx = touch.clientX - this.touchLastX;
-        const dy = touch.clientY - this.touchLastY;
-        if (Math.abs(dx) >= 24) {
-            this.move(dx > 0 ? 1 : -1);
-            this.touchLastX = touch.clientX;
-        }
-        if (dy >= 24) {
+        const totalDx = touch.clientX - this.touchStartX;
+        const totalDy = touch.clientY - this.touchStartY;
+        // One swipe = exactly one cell, in the dominant direction.
+        // Further movement in the same touch is ignored: to move another
+        // cell, lift and swipe again. This replaces the old behaviour of
+        // moving one cell per 24px dragged, and the flick-down hard drop.
+        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 24) return;
+        this.stopBoardLongPress();
+        if (Math.abs(totalDx) > Math.abs(totalDy)) {
+            this.move(totalDx > 0 ? 1 : -1);
+        } else if (totalDy > 0) {
             this.softDrop();
-            this.touchLastY = touch.clientY;
         }
+        // An upward swipe does nothing, but it still counts as a swipe,
+        // so lifting the finger after it does not rotate the piece.
+        this.touchSwipeDone = true;
     }
 
     handleBoardTouchEnd(event) {
         if (!this.isActive || this.isPaused || !event.changedTouches.length) return;
+        this.stopBoardLongPress();
+        // A swipe already moved one cell, and a long-press already hard
+        // dropped, so neither should also rotate on lift.
+        if (this.touchSwipeDone || this.touchLongPressed) return;
         const touch = event.changedTouches[0];
         const totalDx = touch.clientX - this.touchStartX;
         const totalDy = touch.clientY - this.touchStartY;
         const duration = Date.now() - this.touchStartTime;
-        // Tap = rotate. Flick down = hard drop. Anything else was already
-        // handled step-by-step by touchmove, so do not repeat it here.
+        // Tap = rotate, unchanged.
         if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 24 && duration < 400) {
             this.rotate();
-        } else if (totalDy > 80 && Math.abs(totalDy) > Math.abs(totalDx) && duration < 500) {
-            this.hardDrop();
         }
     }
 

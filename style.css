@@ -281,7 +281,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 224px; /* vertical space used by everything except the board */
+    --tetris-chrome: 154px; /* vertical space used by everything except the board */
     padding: 8px;
     overscroll-behavior: none;
 }
@@ -322,10 +322,13 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 .tetris-active .tetris-controls {
     grid-area: pad;
+    display: flex;
+    justify-content: center;
     width: 100%;
     margin: 0;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) repeat(2, minmax(0, 1.5fr));
-    gap: 6px;
+}
+.tetris-active .tetris-controls .control-button {
+    min-width: 120px;
 }
 .tetris-active .tetris-controls .control-button {
     min-height: 48px;
@@ -403,7 +406,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 /* Small portrait phones: hide the tips row so the board gets taller.
    The game-over / paused overlays still show the important messages. */
 @media (max-width: 480px) {
-    .tetris-active { --tetris-chrome: 184px; }
+    .tetris-active { --tetris-chrome: 120px; }
     .tetris-active .game-container {
         grid-template-areas:
             "back scores new"
