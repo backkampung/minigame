@@ -33,6 +33,12 @@ class TetrisGame {
         this.isActive = false;
         this.isPaused = false;
         this.gameInterval = null;
+        this.bag = [];
+        this.nextType = null;
+        this.cells = [];
+        this.prevRender = [];
+        this.nextCells = [];
+        this.pauseOverlay = null;
     }
 
     start() {
@@ -42,6 +48,10 @@ class TetrisGame {
         this.isActive = true;
         const board = document.getElementById('game-board');
         board.classList.add('tetris-board');
+        this.buildBoardCells();
+        this.buildNextPreview();
+        const nextEl = document.getElementById('tetris-next');
+        if (nextEl) nextEl.classList.remove('hidden');
         const pauseButton = document.querySelector('[data-action="pause"]');
         if (pauseButton) pauseButton.textContent = 'Pause';
         this.bindEvents();
@@ -60,6 +70,68 @@ class TetrisGame {
         if (controls) controls.removeEventListener('click', this.controlHandler);
         const board = document.getElementById('game-board');
         if (board) board.classList.remove('tetris-board');
+        const nextEl = document.getElementById('tetris-next');
+        if (nextEl) nextEl.classList.add('hidden');
+        if (this.pauseOverlay) { this.pauseOverlay.remove(); this.pauseOverlay = null; }
+        this.cells = [];
+        this.prevRender = [];
+        this.nextCells = [];
+    }
+
+    buildBoardCells() {
+        const board = document.getElementById('game-board');
+        if (!board) return;
+        board.replaceChildren();
+        this.cells = [];
+        this.prevRender = [];
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'tetris-cell';
+                cell.setAttribute('role', 'gridcell');
+                cell.setAttribute('aria-label', 'Empty');
+                board.appendChild(cell);
+                this.cells.push(cell);
+                this.prevRender.push(null);
+            }
+        }
+    }
+
+    buildNextPreview() {
+        const grid = document.getElementById('tetris-next-grid');
+        if (!grid) return;
+        grid.replaceChildren();
+        this.nextCells = [];
+        for (let i = 0; i < 8; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'tetris-next-cell';
+            grid.appendChild(cell);
+            this.nextCells.push(cell);
+        }
+    }
+
+    drawFromBag() {
+        if (!this.bag.length) {
+            this.bag = Object.keys(this.shapes);
+            for (let i = this.bag.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.bag[i], this.bag[j]] = [this.bag[j], this.bag[i]];
+            }
+        }
+        return this.bag.shift();
+    }
+
+    updateNextPreview() {
+        if (!this.nextCells.length || !this.nextType) return;
+        const shape = this.shapes[this.nextType];
+        for (let i = 0; i < this.nextCells.length; i++) {
+            const row = Math.floor(i / 4);
+            const col = i % 4;
+            const filled = shape[row] && shape[row][col];
+            this.nextCells[i].className = filled
+                ? `tetris-next-cell tetromino-${this.nextType.toLowerCase()}`
+                : 'tetris-next-cell';
+        }
     }
 
     startGravity() {
@@ -68,8 +140,9 @@ class TetrisGame {
     }
 
     spawnPiece() {
-        const types = Object.keys(this.shapes);
-        const type = types[Math.floor(Math.random() * types.length)];
+        const type = this.nextType || this.drawFromBag();
+        this.nextType = this.drawFromBag();
+        this.updateNextPreview();
         const matrix = this.shapes[type].map(row => [...row]);
         this.piece = { type, matrix, x: Math.floor((this.width - matrix[0].length) / 2), y: 0 };
         if (this.collides(this.piece)) {
@@ -206,6 +279,8 @@ class TetrisGame {
 
     render() {
         const board = document.getElementById('game-board');
+        if (!board) return;
+        if (!this.cells.length) this.buildBoardCells();
         const cells = Array.from({ length: this.height }, (_, y) =>
             Array.from({ length: this.width }, (_, x) => this.grid[y][x])
         );
@@ -216,26 +291,33 @@ class TetrisGame {
                 if (value && boardY >= 0 && boardY < this.height) cells[boardY][boardX] = this.piece.type;
             }));
         }
-        board.replaceChildren();
         cells.forEach((row, y) => row.forEach((type, x) => {
-            const cell = document.createElement('div');
+            const index = y * this.width + x;
+            if (this.prevRender[index] === type) return;
+            this.prevRender[index] = type;
+            const cell = this.cells[index];
+            if (!cell) return;
             cell.className = `tetris-cell${type ? ` tetromino-${type.toLowerCase()}` : ''}`;
-            cell.setAttribute('role', 'gridcell');
             cell.setAttribute('aria-label', type ? `${type} block at row ${y + 1}, column ${x + 1}` : 'Empty');
-            board.appendChild(cell);
         }));
         if (this.isPaused) {
-            const overlay = document.createElement('div');
-            overlay.className = 'game-over tetris-overlay';
-            const card = document.createElement('div');
-            card.className = 'game-over-card';
-            const heading = document.createElement('h2');
-            heading.textContent = 'Paused';
-            const message = document.createElement('p');
-            message.textContent = 'Resume when you are ready.';
-            card.append(heading, message);
-            overlay.appendChild(card);
-            board.appendChild(overlay);
+            if (!this.pauseOverlay) {
+                const overlay = document.createElement('div');
+                overlay.className = 'game-over tetris-overlay';
+                const card = document.createElement('div');
+                card.className = 'game-over-card';
+                const heading = document.createElement('h2');
+                heading.textContent = 'Paused';
+                const message = document.createElement('p');
+                message.textContent = 'Resume when you are ready.';
+                card.append(heading, message);
+                overlay.appendChild(card);
+                board.appendChild(overlay);
+                this.pauseOverlay = overlay;
+            }
+        } else if (this.pauseOverlay) {
+            this.pauseOverlay.remove();
+            this.pauseOverlay = null;
         }
     }
 
