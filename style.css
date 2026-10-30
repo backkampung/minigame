@@ -61,6 +61,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 .game-option:active, .control-button:active, .back-button:active { transform: scale(.98); }
 
 .game-container { position: relative; }
+.game-container:has(.game-header.chess-layout) { width: min(100%, 600px); }
 .back-button { margin: 0 0 12px; padding: 8px 14px; background: var(--board); color: white; }
 .game-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .game-header.chess-layout { flex-wrap: wrap; justify-content: center; }
@@ -147,7 +148,8 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 .chess-players .score-box > span:last-child { display: block; font-size: .9rem; font-weight: 800; white-space: nowrap; }
 
 .chess-board {
-    width: min(100%, 480px, 68svh) !important;
+    width: min(100%, 560px, 68svh) !important;
+    container-type: inline-size;
     margin: 0 auto;
     grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
     grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
@@ -179,6 +181,11 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     z-index: 1;
     font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", serif;
     font-size: clamp(1.55rem, 10vw, 3.25rem);
+    /* 10cqw = 10% of the board width = 80% of one square (board / 8),
+       so the piece can never be larger than its square, no matter
+       how the board is shrunk by the viewport height. The clamp above
+       is only a fallback for browsers without container queries. */
+    font-size: 10cqw;
     line-height: 1;
     pointer-events: none;
 }
@@ -281,55 +288,32 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 280px; /* vertical space used by everything except the board.
-       Breakdown (desktop): back/scores row ~50 + Pause row ~48 + Next ~30
-       + status ~40 + grid gaps 32 + body/tetris padding ~72 = ~272, rounded up.
-       The previous 154px was wrong and made the board too tall, pushing
-       Pause below the fold on phones. */
+    --tetris-chrome: 320px; /* vertical space used by everything except the board,
+       in the same normal flow as 2048: back 56 + header 67 + New game 54
+       + Next 22 + Pause 56 + tips 35 + padding 16 = 306, rounded up. */
     padding: 8px;
     overscroll-behavior: none;
 }
+/* Tetris uses the same normal flow as 2048: back button, then header
+   (title left, Score/Best right), then New game right-aligned, then
+   Next, board, Pause centred below the board, then tips. No grid,
+   no hidden title, no compact score boxes — identical to 2048. */
 .tetris-active .game-container {
-    width: min(100%, 420px);
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-        "back scores new"
-        "next next next"
-        "board board board"
-        "pad pad pad"
-        "status status status";
-    gap: 8px;
-    align-items: center;
+    width: min(100%, 500px);
+    display: block;
 }
-.tetris-active .back-button { grid-area: back; margin: 0; }
-.tetris-active .game-header { grid-area: scores; justify-content: center; margin: 0; }
-.tetris-active .game-controls { grid-area: new; margin: 0; }
-/* The title stays available to screen readers but no longer takes up space. */
-.tetris-active .game-header h1 {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-}
-.tetris-active .score-box { min-width: 56px; padding: 4px 8px; }
-.tetris-active #score, .tetris-active #best-score { font-size: 1.05rem; }
-
 /* The board is twice as tall as it is wide, so its width is half of the free height. */
-.tetris-active #game-board { grid-area: board; justify-self: center; }
+.tetris-active #game-board { margin-inline: auto; }
 .tetris-active .tetris-board {
     width: min(100%, 360px, max(120px, calc((100svh - var(--tetris-chrome)) / 2))) !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
 }
 
 .tetris-active .tetris-controls {
-    grid-area: pad;
     display: flex;
     justify-content: center;
     width: 100%;
-    margin: 0;
+    margin: 12px 0 0;
 }
 .tetris-active .tetris-controls .control-button {
     min-width: 0;
@@ -342,20 +326,17 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     user-select: none;
 }
 .tetris-active .tips {
-    grid-area: status;
-    margin: 0;
-    min-height: 2.5em;
-    max-height: 2.5em;
-    overflow: hidden;
-    font-size: .8rem;
-    line-height: 1.25;
+    margin: 14px 0 0;
+    min-height: 1.5em;
+    max-height: none;
+    font-size: 1rem;
+    line-height: 1.45;
 }
 
-/* Tetris Pause is hardcoded to the middle, below the board: it sits in
-   its own centred row under the board, in portrait AND landscape.
-   Chrome values (280px / 220px) already account for this row, so the
-   board is sized to leave room for it. Pause is the same size as
-   New game: padding 9px 16px, min-height 44px, no fixed width. */
+/* Tetris Pause is hardcoded to the middle, below the board, in
+   portrait AND landscape. Chrome (320px) already accounts for this
+   row, so the board is sized to leave room for it. Pause is the same
+   size as New game: padding 9px 16px, min-height 44px, no fixed width. */
 .tetris-active .tetris-controls {
     justify-self: stretch;
     place-items: center;
@@ -364,16 +345,21 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     margin-inline: auto;
 }
 @media (orientation: landscape) and (max-height: 520px) {
-    .tetris-active { --tetris-chrome: 120px; padding: 4px; }
-    .tetris-active .game-container {
-        width: min(100%, 420px);
-        grid-template-areas:
-            "back scores new"
-            "board board board"
-            "pad pad pad";
+    /* Short landscape only: hide the title (scores stay) so the
+       normal-flow Tetris can still fit; portrait keeps the title,
+       exactly like 2048. */
+    .tetris-active { --tetris-chrome: 220px; padding: 4px; }
+    .tetris-active .game-header h1 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
     }
+    .tetris-active .game-header { justify-content: center; }
     .tetris-active .tetris-board {
-        width: max(120px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
+        width: min(100%, 360px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
     }
     .tetris-active .tetris-controls .control-button { min-height: 44px; }
     .tetris-active .back-button { min-height: 36px; padding: 4px 10px; }
@@ -387,11 +373,10 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 .tetris-next-cell[class*="tetromino-"] { box-shadow: inset 0 0 0 2px rgb(0 0 0 / 12%); }
 .tetris-active .tetris-next {
     display: flex;
-    grid-area: next;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin: 0;
+    margin: 0 0 10px;
 }
 .tetris-active .tetris-next-label { font-weight: 700; font-size: .9rem; }
 @media (orientation: landscape) and (max-height: 520px) {
@@ -416,15 +401,6 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 /* Small portrait phones: hide the tips row so the board gets taller.
    The game-over / paused overlays still show the important messages. */
 @media (max-width: 480px) {
-    .tetris-active { --tetris-chrome: 220px; }
-    .tetris-active .game-container {
-        grid-template-areas:
-            "back scores new"
-            "next next next"
-            "board board board"
-            "pad pad pad";
-    }
-    .tetris-active .tips { display: none; }
     .tetris-active .tetris-controls .control-button { min-height: 44px; }
 }
 
@@ -434,8 +410,9 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
    the game container is capped to the viewport height and each board
    is sized from the viewport height as well as its width, so the
    board shrinks instead of pushing the page below the fold.
-   Tetris keeps its own grid layout (body.tetris-active), so the flex
-   rule below explicitly excludes it. Internal scrolling is kept only
+   Tetris now uses the same normal flow as 2048, so the flex
+   rule below explicitly excludes it (its board is sized by
+   --tetris-chrome instead). Internal scrolling is kept only
    inside the chess move list, never on the page itself. */
 body.game-active { overflow: hidden; }
 body.game-active:not(.tetris-active) .game-container {
@@ -462,7 +439,7 @@ body.game-active:not(.tetris-active) #game-board {
 /* Chess: chrome is larger (wrapped header, players, move list), about
    450px. The move list itself may scroll internally when long. */
 body.game-active #game-board.chess-board {
-    width: min(100%, 480px, calc(100svh - 450px)) !important;
+    width: min(100%, 560px, calc(100svh - 450px)) !important;
 }
 body.game-active .chess-move-list { max-height: 72px; }
 body.game-active .chess-setup {
@@ -477,7 +454,7 @@ body.game-active .chess-setup {
         width: min(100%, 500px, calc(100svh - 200px)) !important;
     }
     body.game-active #game-board.chess-board {
-        width: min(100%, 480px, calc(100svh - 220px)) !important;
+        width: min(100%, 560px, calc(100svh - 220px)) !important;
     }
     body.game-active .chess-move-list { display: none; }
     body.game-active .tips { display: none; }
