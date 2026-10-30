@@ -44,10 +44,10 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
    clamp() keeps them from shrinking too small or growing absurdly large. */
 .game-option {
     width: 100%;
-    min-height: clamp(64px, 16vw, 88px);
+    min-height: clamp(72px, 16vw, 88px);
     padding: clamp(14px, 4vw, 22px) clamp(16px, 5vw, 28px);
     background: var(--board); color: #fff;
-    font-size: clamp(1.35rem, 6vw, 1.9rem);
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
     font-weight: 750;
 }
 .game-option:hover, .control-button:hover, .back-button:hover { filter: brightness(.94); }
