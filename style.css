@@ -27,10 +27,10 @@ button:focus-visible { outline: 3px solid #5b8def; outline-offset: 3px; }
 main { width: 100%; }
 
 .game-selector, .game-container { width: min(100%, 500px); margin: 0 auto; }
-.game-selector { text-align: center; }
+.game-selector { width: min(92vw, 520px); text-align: center; }
 h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-height: 1.1; }
-.intro { margin: 12px 0 28px; }
-.game-options { display: grid; gap: 14px; }
+.intro { margin: clamp(10px, 3vw, 16px) 0 clamp(20px, 6vw, 32px); font-size: clamp(1rem, 4vw, 1.25rem); }
+.game-options { display: grid; gap: clamp(12px, 3.5vw, 18px); }
 .game-option, .back-button, .control-button {
     min-height: 44px;
     border: 0;
@@ -39,7 +39,17 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
-.game-option { padding: 18px; background: var(--board); color: #fff; font-size: 1.5rem; font-weight: 750; }
+/* Game menu buttons scale with screen width instead of a fixed size,
+   so small phones get a usable tap target and tablets do not get tiny buttons.
+   clamp() keeps them from shrinking too small or growing absurdly large. */
+.game-option {
+    width: 100%;
+    min-height: clamp(64px, 16vw, 88px);
+    padding: clamp(14px, 4vw, 22px) clamp(16px, 5vw, 28px);
+    background: var(--board); color: #fff;
+    font-size: clamp(1.35rem, 6vw, 1.9rem);
+    font-weight: 750;
+}
 .game-option:hover, .control-button:hover, .back-button:hover { filter: brightness(.94); }
 .game-option:active, .control-button:active, .back-button:active { transform: scale(.98); }
 
