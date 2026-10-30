@@ -288,10 +288,11 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 250px; /* vertical space used by everything except the board:
-       back 56 + header 67 + Pause/New game row 44 + Next 32 + padding 16
-       = 215, rounded up. Pause shares the New game row, so it no longer
-       costs a row of its own below the board. */
+    --tetris-chrome: 290px; /* vertical space used by everything except the board,
+       desktop worst case: back 56 + header 72 + Pause/New game row 54
+       + Next 32 + body padding 28 + grid gaps 32 = 274, rounded to 290.
+       Pause shares the New game row, so it no longer costs a row of its
+       own below the board. Small phones use 250px below. */
     padding: 8px;
     overscroll-behavior: none;
 }
@@ -350,6 +351,12 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 }
 .tetris-active .tips {
     display: none !important;
+}
+
+@media (max-width: 600px) {
+    /* Phone chrome is smaller (smaller title/score boxes, smaller padding),
+       so the board can be larger without overflowing. */
+    .tetris-active { --tetris-chrome: 250px; }
 }
 
 /* Tetris Pause sits left of New game, in the same row, in portrait AND landscape. Pause is the same size as New game: padding 9px 16px, min-height 44px, no fixed width. */
