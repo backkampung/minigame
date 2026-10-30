@@ -348,25 +348,32 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 }
 
 /* Short landscape screens: board on the left, buttons on the right. */
+/* Tetris Pause is hardcoded to the middle: it sits in its own centred
+   row under the board, in portrait AND landscape. It is never placed
+   in a side column, so no orientation or screen size can push it to
+   an edge. */
+.tetris-active .tetris-controls {
+    justify-self: stretch;
+    place-items: center;
+}
+.tetris-active .tetris-controls .control-button {
+    margin-inline: auto;
+}
 @media (orientation: landscape) and (max-height: 520px) {
-    .tetris-active { --tetris-chrome: 84px; }
+    .tetris-active { --tetris-chrome: 120px; padding: 4px; }
     .tetris-active .game-container {
-        width: min(100%, 640px);
-        column-gap: 16px;
+        width: min(100%, 420px);
         grid-template-areas:
             "back scores new"
-            "board pad pad";
+            "next next next"
+            "board board board"
+            "pad pad pad";
     }
     .tetris-active .tetris-board {
         width: max(120px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
     }
-    .tetris-active .tetris-controls {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        width: min(100%, 300px);
-        justify-self: center;
-        align-self: center;
-    }
-    .tetris-active .tetris-controls .control-button { min-height: 56px; }
+    .tetris-active .tetris-controls .control-button { min-height: 44px; }
+    .tetris-active .back-button { min-height: 36px; padding: 4px 10px; }
     .tetris-active .tips { display: none; }
 }
 
@@ -416,4 +423,59 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     }
     .tetris-active .tips { display: none; }
     .tetris-active .tetris-controls .control-button { min-height: 60px; }
+}
+
+/* ===== All games: fit on one screen, no page scroll =====
+   main.js adds body.game-active when any game (or the chess setup)
+   is open, and removes it on back to the menu. While it is present,
+   the game container is capped to the viewport height and each board
+   is sized from the viewport height as well as its width, so the
+   board shrinks instead of pushing the page below the fold.
+   Tetris keeps its own grid layout (body.tetris-active), so the flex
+   rule below explicitly excludes it. Internal scrolling is kept only
+   inside the chess move list, never on the page itself. */
+body.game-active { overflow: hidden; }
+body.game-active:not(.tetris-active) .game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: calc(100svh - 56px - env(safe-area-inset-bottom, 0px));
+}
+body.game-active:not(.tetris-active) .back-button,
+body.game-active:not(.tetris-active) .game-header,
+body.game-active:not(.tetris-active) .game-controls,
+body.game-active:not(.tetris-active) .tips,
+body.game-active:not(.tetris-active) .chess-move-list { flex-shrink: 0; }
+body.game-active:not(.tetris-active) .tips { margin-top: 8px; }
+/* Square boards (2048, Snake): chrome = back + header + New game +
+   tips + body padding, about 290px. On a tall phone the width limit
+   wins; on a short screen the height limit wins and the board shrinks. */
+body.game-active:not(.tetris-active) #game-board {
+    width: min(100%, 500px, calc(100svh - 290px)) !important;
+    margin-inline: auto;
+    flex-shrink: 1;
+    min-height: 0;
+}
+/* Chess: chrome is larger (wrapped header, players, move list), about
+   450px. The move list itself may scroll internally when long. */
+body.game-active #game-board.chess-board {
+    width: min(100%, 480px, calc(100svh - 450px)) !important;
+}
+body.game-active .chess-move-list { max-height: 72px; }
+body.game-active .chess-setup {
+    margin: 8px auto 0;
+    padding: 16px;
+    gap: 8px;
+    max-height: calc(100svh - 300px);
+    overflow-y: auto;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+    body.game-active:not(.tetris-active) #game-board {
+        width: min(100%, 500px, calc(100svh - 200px)) !important;
+    }
+    body.game-active #game-board.chess-board {
+        width: min(100%, 480px, calc(100svh - 220px)) !important;
+    }
+    body.game-active .chess-move-list { display: none; }
+    body.game-active .tips { display: none; }
 }
