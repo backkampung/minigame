@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         board.classList.remove('hidden');
         board.setAttribute('aria-label', 'Game board');
         document.body.classList.remove('tetris-active');
+        document.body.classList.remove('game-active');
         tetrisControls.classList.add('hidden');
         chessSetup.classList.add('hidden');
         chessPlayers.classList.add('hidden');
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('restart-button').textContent = 'New game';
         tetrisControls.classList.toggle('hidden', id !== 'Tetris');
         document.body.classList.toggle('tetris-active', id === 'Tetris');
+        document.body.classList.add('game-active');
         if (id === '2048') games['2048'].init();
         else if (id === 'Snake') games.Snake.start();
         else if (id === 'Tetris') games.Tetris.start();
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scoreGroup.classList.add('hidden');
         chessPlayers.classList.remove('hidden');
         chessSetup.classList.remove('hidden');
+        document.body.classList.add('game-active');
         board.classList.add('hidden');
         gameControls.classList.add('hidden');
         status.textContent = 'Choose Charlie’s difficulty, then start a match.';
