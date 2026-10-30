@@ -367,3 +367,33 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 @media (orientation: landscape) and (max-height: 520px) {
     .tetris-active .tetris-next { display: none; }
 }
+
+/* ===== Mobile Tetris: thumb-friendly controls, safe area, more board room ===== */
+.tetris-active {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.tetris-active .tetris-controls .control-button {
+    min-height: 60px;
+    font-size: 1.15rem;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.tetris-active .tetris-controls {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    gap: 10px;
+}
+/* Small portrait phones: hide the tips row so the board gets taller.
+   The game-over / paused overlays still show the important messages. */
+@media (max-width: 480px) {
+    .tetris-active { --tetris-chrome: 184px; }
+    .tetris-active .game-container {
+        grid-template-areas:
+            "back scores new"
+            "next next next"
+            "board board board"
+            "pad pad pad";
+    }
+    .tetris-active .tips { display: none; }
+    .tetris-active .tetris-controls .control-button { min-height: 60px; }
+}
