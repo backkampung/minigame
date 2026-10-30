@@ -22,21 +22,21 @@ and the freed space makes the board bigger.
 ### `tetris.js` — board gestures replace dragging and the flick-down hard drop
 
 - **Swipe left / right = move exactly one cell left / right.**
-  A touch that moves more than 24px from its start point, with horizontal
+  A touch that moves more than 16px from its start point, with horizontal
   movement larger than vertical movement, moves the piece one cell.
   Further movement in the same touch is ignored. To move another cell,
   lift the finger and swipe again. Intended effect: one deliberate swipe
   can never overshoot by two or three cells.
 - **Swipe down = move exactly one cell down (soft drop).**
-  Same 24px threshold, vertical movement larger than horizontal movement,
+  Same 16px threshold, vertical movement larger than horizontal movement,
   and the movement is downwards. Intended effect: down behaves exactly
   like left and right, so the three directions are consistent to learn.
 - **Tap = rotate, unchanged.**
-  A touch that lifts within 400ms and moves less than 24px still rotates
+  A touch that lifts within 300ms and moves less than 16px still rotates
   the piece once. Intended effect: the one gesture that already felt
   good is not changed.
 - **Long-press = hard drop.**
-  Holding the finger still on the board for 500ms drops the piece
+  Holding the finger still on the board for 300ms drops the piece
   instantly to the bottom. Any swipe cancels the long-press timer, and
   lifting the finger cancels it too. Intended effect: fast dropping is
   still available, but it can no longer happen by accident the way the
@@ -97,9 +97,13 @@ and the freed space makes the board bigger.
   the old drag. That is deliberate: accuracy was chosen over speed, and
   long-press hard drop covers the case where the player wants to drop
   fast.
-- A 500ms long-press can feel slow the first few times. If it feels
-  wrong in real play, the threshold to try first is 400ms, not a return
-  to flick-down hard drop.
+- A 300ms long-press is deliberately shorter than the usual 500ms
+  system long-press, so it feels faster — but a slow tap that lasts
+  over 300ms will now hard-drop instead of rotating. If that misfires
+  in real play, the threshold to try next is 400ms, not a return to
+  flick-down hard drop. Likewise, a 16px swipe threshold is more
+  sensitive than 24px: a tap with a slight finger wobble over 16px
+  will count as a swipe instead of a rotate.
 - A swipe that starts on the Pause button is a button press, not a board
   gesture, because the button sits outside the board element.
 - Mouse users: clicking on the board does nothing, exactly as before.
