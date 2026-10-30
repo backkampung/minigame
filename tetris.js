@@ -13,6 +13,18 @@ class TetrisGame {
         };
         this.keydownHandler = this.handleKeydown.bind(this);
         this.controlHandler = this.handleControlClick.bind(this);
+        this.controlPointerDownHandler = this.handleControlPointerDown.bind(this);
+        this.controlPointerUpHandler = this.handleControlPointerUp.bind(this);
+        this.boardTouchStartHandler = this.handleBoardTouchStart.bind(this);
+        this.boardTouchMoveHandler = this.handleBoardTouchMove.bind(this);
+        this.boardTouchEndHandler = this.handleBoardTouchEnd.bind(this);
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchLastX = 0;
+        this.touchLastY = 0;
+        this.touchStartTime = 0;
+        this.repeatTimeout = null;
+        this.repeatInterval = null;
         this.resetState();
     }
 
@@ -65,9 +77,22 @@ class TetrisGame {
         this.isActive = false;
         if (this.gameInterval) clearInterval(this.gameInterval);
         this.gameInterval = null;
+        this.stopControlRepeat();
         document.removeEventListener('keydown', this.keydownHandler);
         const controls = document.getElementById('tetris-controls');
-        if (controls) controls.removeEventListener('click', this.controlHandler);
+        if (controls) {
+            controls.removeEventListener('click', this.controlHandler);
+            controls.removeEventListener('pointerdown', this.controlPointerDownHandler);
+            controls.removeEventListener('pointerup', this.controlPointerUpHandler);
+            controls.removeEventListener('pointercancel', this.controlPointerUpHandler);
+            controls.removeEventListener('pointerleave', this.controlPointerUpHandler);
+        }
+        const boardEl = document.getElementById('game-board');
+        if (boardEl) {
+            boardEl.removeEventListener('touchstart', this.boardTouchStartHandler);
+            boardEl.removeEventListener('touchmove', this.boardTouchMoveHandler);
+            boardEl.removeEventListener('touchend', this.boardTouchEndHandler);
+        }
         const board = document.getElementById('game-board');
         if (board) board.classList.remove('tetris-board');
         const nextEl = document.getElementById('tetris-next');
@@ -365,7 +390,15 @@ class TetrisGame {
     handleControlClick(event) {
         const button = event.target.closest('[data-action]');
         if (!button) return;
-        const action = button.dataset.action;
+        // Pointerdown already fired this action on touch/mouse; ignore the
+        // following click so a tap does not move/rotate/drop twice.
+        // Keyboard activation has no pointerdown, so it still works.
+        if (button.dataset.action === this.lastPointerAction &&
+            Date.now() - (this.lastPointerTime || 0) < 500) return;
+        this.doControlAction(button.dataset.action);
+    }
+
+    doControlAction(action) {
         if (action === 'left') this.move(-1);
         if (action === 'right') this.move(1);
         if (action === 'down') this.softDrop();
@@ -374,9 +407,88 @@ class TetrisGame {
         if (action === 'pause') this.togglePause();
     }
 
+    stopControlRepeat() {
+        if (this.repeatTimeout) { clearTimeout(this.repeatTimeout); this.repeatTimeout = null; }
+        if (this.repeatInterval) { clearInterval(this.repeatInterval); this.repeatInterval = null; }
+    }
+
+    handleControlPointerDown(event) {
+        const button = event.target.closest('[data-action]');
+        if (!button) return;
+        event.preventDefault();
+        const action = button.dataset.action;
+        this.lastPointerAction = action;
+        this.lastPointerTime = Date.now();
+        this.doControlAction(action);
+        // Press-and-hold repeats only for continuous actions, never for
+        // rotate / drop / pause, which must stay one-shot.
+        this.stopControlRepeat();
+        if (action === 'left' || action === 'right' || action === 'down') {
+            this.repeatTimeout = setTimeout(() => {
+                this.repeatInterval = setInterval(() => this.doControlAction(action), 90);
+            }, 280);
+        }
+    }
+
+    handleControlPointerUp() {
+        this.stopControlRepeat();
+    }
+
+    handleBoardTouchStart(event) {
+        if (!this.isActive || this.isPaused || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
+        this.touchLastX = touch.clientX;
+        this.touchLastY = touch.clientY;
+        this.touchStartTime = Date.now();
+    }
+
+    handleBoardTouchMove(event) {
+        if (!this.isActive || this.isPaused || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - this.touchLastX;
+        const dy = touch.clientY - this.touchLastY;
+        if (Math.abs(dx) >= 24) {
+            this.move(dx > 0 ? 1 : -1);
+            this.touchLastX = touch.clientX;
+        }
+        if (dy >= 24) {
+            this.softDrop();
+            this.touchLastY = touch.clientY;
+        }
+    }
+
+    handleBoardTouchEnd(event) {
+        if (!this.isActive || this.isPaused || !event.changedTouches.length) return;
+        const touch = event.changedTouches[0];
+        const totalDx = touch.clientX - this.touchStartX;
+        const totalDy = touch.clientY - this.touchStartY;
+        const duration = Date.now() - this.touchStartTime;
+        // Tap = rotate. Flick down = hard drop. Anything else was already
+        // handled step-by-step by touchmove, so do not repeat it here.
+        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 24 && duration < 400) {
+            this.rotate();
+        } else if (totalDy > 80 && Math.abs(totalDy) > Math.abs(totalDx) && duration < 500) {
+            this.hardDrop();
+        }
+    }
+
     bindEvents() {
         document.addEventListener('keydown', this.keydownHandler);
         const controls = document.getElementById('tetris-controls');
-        if (controls) controls.addEventListener('click', this.controlHandler);
+        if (controls) {
+            controls.addEventListener('click', this.controlHandler);
+            controls.addEventListener('pointerdown', this.controlPointerDownHandler);
+            controls.addEventListener('pointerup', this.controlPointerUpHandler);
+            controls.addEventListener('pointercancel', this.controlPointerUpHandler);
+            controls.addEventListener('pointerleave', this.controlPointerUpHandler);
+        }
+        const board = document.getElementById('game-board');
+        if (board) {
+            board.addEventListener('touchstart', this.boardTouchStartHandler, { passive: true });
+            board.addEventListener('touchmove', this.boardTouchMoveHandler, { passive: true });
+            board.addEventListener('touchend', this.boardTouchEndHandler, { passive: true });
+        }
     }
 }
