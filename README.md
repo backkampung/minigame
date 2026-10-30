@@ -9,10 +9,14 @@ Open `index.html` in a modern browser. For the most consistent behavior, serve t
 ## Controls
 
 - **2048:** Arrow keys or W/A/S/D on a keyboard; swipe on the board on touch screens.
-- **Snake:** Arrow keys or W/A/S/D on a keyboard; swipe on the board on touch screens.
-- **Tetris:** Left/right move, up rotates, down soft-drops, Space hard-drops, and P pauses. On phones, use the on-screen buttons below the board.
+- **Snake:** Arrow keys or W/A/S/D on a keyboard; swipe on the board on touch screens. Snake has no pause button and no pause key: to stop a game, use **New game** or **Games** to return to the menu.
+- **Tetris:** Left/right move, up rotates, down soft-drops, Space hard-drops, and P pauses. On touch screens, swipe left, right, or down to move exactly one cell, tap the board to rotate, and press and hold the board (300ms) to hard-drop. The **Pause** button sits below the board, centred, and is the same size as **New game** (padding 9px 16px, minimum height 44px).
 - **Human vs Machine (Chess):** You play White against Charlie (Machine) as Black. Choose Easy, Moderate, or Hard before starting. Tap/click a piece, then a highlighted square. Pawn promotions let you choose a piece.
 - Use **New game** to restart and **Games** to return to the menu.
+
+## Layout
+
+Every game fits on one screen with no page scrolling: boards shrink on short screens instead of pushing content below the fold. On Tetris, the Pause button is always in the middle below the board. On chess, the move history scrolls inside its own list on taller screens and is hidden on very short landscape screens.
 
 Best scores are saved in the browser on the current device. Tetris awards points for dropping pieces and clearing lines; speed increases as you clear more lines. Chess difficulty changes Charlie's in-browser search depth; Hard searches deeper, but is not an unbeatable engine.
 
