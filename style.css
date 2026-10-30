@@ -116,7 +116,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     width: min(100%, 360px, 48svh);
     margin: 12px auto 0;
 }
-.tetris-controls .control-button { min-height: 48px; padding: 8px 12px; font-size: 1.1rem; }
+.tetris-controls .control-button { min-height: 44px; padding: 9px 16px; font-size: 1rem; }
 .tetris-overlay { border: 0; }
 
 .chess-setup {
@@ -295,9 +295,9 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
         "back scores new"
-        "pad pad pad"
         "next next next"
         "board board board"
+        "pad pad pad"
         "status status status";
     gap: 8px;
     align-items: center;
@@ -332,12 +332,12 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     margin: 0;
 }
 .tetris-active .tetris-controls .control-button {
-    min-width: 120px;
+    min-width: 0;
 }
 .tetris-active .tetris-controls .control-button {
-    min-height: 48px;
-    padding: 4px;
-    font-size: .95rem;
+    min-height: 44px;
+    padding: 9px 16px;
+    font-size: 1rem;
     -webkit-user-select: none;
     user-select: none;
 }
@@ -351,10 +351,11 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     line-height: 1.25;
 }
 
-/* Tetris Pause is hardcoded to the middle AND above the board: it sits
-   in its own centred row between the header and the board, in portrait
-   AND landscape. It is never below the board, so even if the board
-   ever overflows, Pause is already on screen and reachable. */
+/* Tetris Pause is hardcoded to the middle, below the board: it sits in
+   its own centred row under the board, in portrait AND landscape.
+   Chrome values (280px / 220px) already account for this row, so the
+   board is sized to leave room for it. Pause is the same size as
+   New game: padding 9px 16px, min-height 44px, no fixed width. */
 .tetris-active .tetris-controls {
     justify-self: stretch;
     place-items: center;
@@ -368,8 +369,8 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
         width: min(100%, 420px);
         grid-template-areas:
             "back scores new"
-            "pad pad pad"
-            "board board board";
+            "board board board"
+            "pad pad pad";
     }
     .tetris-active .tetris-board {
         width: max(120px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
@@ -402,8 +403,8 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
 }
 .tetris-active .tetris-controls .control-button {
-    min-height: 60px;
-    font-size: 1.15rem;
+    min-height: 44px;
+    font-size: 1rem;
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
@@ -419,12 +420,12 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     .tetris-active .game-container {
         grid-template-areas:
             "back scores new"
-            "pad pad pad"
             "next next next"
-            "board board board";
+            "board board board"
+            "pad pad pad";
     }
     .tetris-active .tips { display: none; }
-    .tetris-active .tetris-controls .control-button { min-height: 60px; }
+    .tetris-active .tetris-controls .control-button { min-height: 44px; }
 }
 
 /* ===== All games: fit on one screen, no page scroll =====
