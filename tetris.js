@@ -457,7 +457,7 @@ class TetrisGame {
                 this.touchLongPressed = true;
                 this.hardDrop();
             }
-        }, 500);
+        }, 300);
     }
 
     handleBoardTouchMove(event) {
@@ -470,7 +470,7 @@ class TetrisGame {
         // Further movement in the same touch is ignored: to move another
         // cell, lift and swipe again. This replaces the old behaviour of
         // moving one cell per 24px dragged, and the flick-down hard drop.
-        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 24) return;
+        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 16) return;
         this.stopBoardLongPress();
         if (Math.abs(totalDx) > Math.abs(totalDy)) {
             this.move(totalDx > 0 ? 1 : -1);
@@ -493,7 +493,7 @@ class TetrisGame {
         const totalDy = touch.clientY - this.touchStartY;
         const duration = Date.now() - this.touchStartTime;
         // Tap = rotate, unchanged.
-        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 24 && duration < 400) {
+        if (Math.max(Math.abs(totalDx), Math.abs(totalDy)) < 16 && duration < 300) {
             this.rotate();
         }
     }
