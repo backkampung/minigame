@@ -264,7 +264,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 176px; /* vertical space used by everything except the board */
+    --tetris-chrome: 224px; /* vertical space used by everything except the board */
     padding: 8px;
     overscroll-behavior: none;
 }
@@ -274,6 +274,7 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
         "back scores new"
+        "next next next"
         "board board board"
         "pad pad pad"
         "status status status";
@@ -347,4 +348,22 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     }
     .tetris-active .tetris-controls .control-button { min-height: 56px; }
     .tetris-active .tips { display: none; }
+}
+
+/* Tetris Next preview: hidden unless Tetris is active. */
+.tetris-next { display: none; }
+.tetris-next-grid { display: grid; grid-template-columns: repeat(4, 16px); gap: 2px; }
+.tetris-next-cell { width: 16px; height: 16px; border-radius: 2px; }
+.tetris-next-cell[class*="tetromino-"] { box-shadow: inset 0 0 0 2px rgb(0 0 0 / 12%); }
+.tetris-active .tetris-next {
+    display: flex;
+    grid-area: next;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+}
+.tetris-active .tetris-next-label { font-weight: 700; font-size: .9rem; }
+@media (orientation: landscape) and (max-height: 520px) {
+    .tetris-active .tetris-next { display: none; }
 }
