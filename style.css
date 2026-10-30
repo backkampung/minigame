@@ -288,9 +288,10 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 320px; /* vertical space used by everything except the board,
+    --tetris-chrome: 285px; /* vertical space used by everything except the board,
        in the same normal flow as 2048: back 56 + header 67 + New game 54
-       + Next 22 + Pause 56 + tips 35 + padding 16 = 306, rounded up. */
+       + Next 22 + Pause 56 + padding 16 = 271, rounded up. Tips are
+       removed, so they are no longer counted. */
     padding: 8px;
     overscroll-behavior: none;
 }
@@ -301,6 +302,14 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 .tetris-active .game-container {
     width: min(100%, 500px);
     display: block;
+}
+/* Games button: full-width centred bar, exactly like Chess (where the
+   flex container stretches it). Tetris is block layout, so without
+   width:100% it would shrink to a small left-aligned button. */
+.tetris-active .back-button {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 12px;
 }
 /* The board is twice as tall as it is wide, so its width is half of the free height. */
 .tetris-active #game-board { margin-inline: auto; }
@@ -326,16 +335,13 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     user-select: none;
 }
 .tetris-active .tips {
-    margin: 14px 0 0;
-    min-height: 1.5em;
-    max-height: none;
-    font-size: 1rem;
-    line-height: 1.45;
+    display: none !important;
 }
 
 /* Tetris Pause is hardcoded to the middle, below the board, in
    portrait AND landscape. Chrome (320px) already accounts for this
-   row, so the board is sized to leave room for it. Pause is the same
+   row, so the board is sized to leave room for it (chrome 285px).
+   Pause is the same
    size as New game: padding 9px 16px, min-height 44px, no fixed width. */
 .tetris-active .tetris-controls {
     justify-self: stretch;
@@ -437,11 +443,13 @@ body.game-active:not(.tetris-active) #game-board {
     min-height: 0;
 }
 /* Chess: chrome is larger (wrapped header, players, move list), about
-   450px. The move list itself may scroll internally when long. */
+   380px (back 56 + header 110 + New game 54 + move list 68 + tips 59
+   + body padding 28 = 375, rounded up). The previous 450px overestimated
+   it by ~70px and shrank the board for no reason. */ The move list itself may scroll internally when long. */
 body.game-active #game-board.chess-board {
-    width: min(100%, 560px, calc(100svh - 450px)) !important;
+    width: min(100%, 560px, calc(100svh - 380px)) !important;
 }
-body.game-active .chess-move-list { max-height: 72px; }
+body.game-active .chess-move-list { max-height: 56px; }
 body.game-active .chess-setup {
     margin: 8px auto 0;
     padding: 16px;
