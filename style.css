@@ -281,7 +281,11 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 
 /* ===== Tetris: fit the whole game on one screen (phones and small laptops) ===== */
 .tetris-active {
-    --tetris-chrome: 154px; /* vertical space used by everything except the board */
+    --tetris-chrome: 280px; /* vertical space used by everything except the board.
+       Breakdown (desktop): back/scores row ~50 + Pause row ~48 + Next ~30
+       + status ~40 + grid gaps 32 + body/tetris padding ~72 = ~272, rounded up.
+       The previous 154px was wrong and made the board too tall, pushing
+       Pause below the fold on phones. */
     padding: 8px;
     overscroll-behavior: none;
 }
@@ -291,9 +295,9 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas:
         "back scores new"
+        "pad pad pad"
         "next next next"
         "board board board"
-        "pad pad pad"
         "status status status";
     gap: 8px;
     align-items: center;
@@ -347,11 +351,10 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     line-height: 1.25;
 }
 
-/* Short landscape screens: board on the left, buttons on the right. */
-/* Tetris Pause is hardcoded to the middle: it sits in its own centred
-   row under the board, in portrait AND landscape. It is never placed
-   in a side column, so no orientation or screen size can push it to
-   an edge. */
+/* Tetris Pause is hardcoded to the middle AND above the board: it sits
+   in its own centred row between the header and the board, in portrait
+   AND landscape. It is never below the board, so even if the board
+   ever overflows, Pause is already on screen and reachable. */
 .tetris-active .tetris-controls {
     justify-self: stretch;
     place-items: center;
@@ -365,9 +368,8 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
         width: min(100%, 420px);
         grid-template-areas:
             "back scores new"
-            "next next next"
-            "board board board"
-            "pad pad pad";
+            "pad pad pad"
+            "board board board";
     }
     .tetris-active .tetris-board {
         width: max(120px, calc((100svh - var(--tetris-chrome)) / 2)) !important;
@@ -413,13 +415,13 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
 /* Small portrait phones: hide the tips row so the board gets taller.
    The game-over / paused overlays still show the important messages. */
 @media (max-width: 480px) {
-    .tetris-active { --tetris-chrome: 120px; }
+    .tetris-active { --tetris-chrome: 220px; }
     .tetris-active .game-container {
         grid-template-areas:
             "back scores new"
+            "pad pad pad"
             "next next next"
-            "board board board"
-            "pad pad pad";
+            "board board board";
     }
     .tetris-active .tips { display: none; }
     .tetris-active .tetris-controls .control-button { min-height: 60px; }
