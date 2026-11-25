@@ -519,7 +519,7 @@ body.game-active .chess-setup {
     gap: 0 !important;
     padding: 0 !important;
     aspect-ratio: 9 / 10 !important;
-    background: #f0d9a8 !important;
+    background: #e9c88f !important;
     touch-action: manipulation !important;
 }
 .xiangqi-lines {
@@ -539,9 +539,10 @@ body.game-active .chess-setup {
 .xiangqi-lines-stroke line { stroke: #7a5c33; stroke-width: 3; }
 .xiangqi-mark { fill: #7a5c33; }
 .xiangqi-river-text {
-    fill: #8a6d3b;
+    fill: #6b4f2a;
     font-family: "Songti SC", "Noto Serif CJK SC", serif;
-    font-size: 52px;
+    font-size: 60px;
+    font-weight: 700;
     text-anchor: middle;
 }
 .xiangqi-point {
@@ -565,11 +566,11 @@ body.game-active .chess-setup {
     display: grid;
     place-items: center;
     /* The board is 9 cols x 10 rows with a 9/10 aspect ratio, so every
-       grid cell is square. 86% of the cell + aspect-ratio 1 = a square,
+       grid cell is square. 74% of the cell + aspect-ratio 1 = a square,
        and border-radius 50% makes it a perfect round disc in every
-       browser. (The old 9.5cqw sizing needed container queries, which
-       older browsers ignore — the disc then collapsed to a blob.) */
-    width: 86%;
+       browser. 74% (not 86%) leaves clear space around each piece so
+       the grid lines show and the board breathes, like a real board. */
+    width: 74%;
     aspect-ratio: 1;
     border: 2px solid currentColor;
     border-radius: 50%;
