@@ -13,13 +13,54 @@
     <main>
         <section id="game-selector" class="game-selector" aria-labelledby="menu-title">
             <h1 id="menu-title">Browser Arcade</h1>
-            <p class="intro">Choose a game to play</p>
+            <p class="intro">5 games, 1 tab, endless fun</p>
+            <p class="stats-strip" aria-label="About this arcade"><span><strong>5</strong> games</span><span>No sign-up</span><span>No download</span><span>Works offline</span></p>
             <div class="game-options">
-                <button id="game-2048" class="game-option" type="button">2048</button>
-                <button id="game-snake" class="game-option" type="button">Snake</button>
-                <button id="game-tetris" class="game-option" type="button">Tetris</button>
-                <button id="game-chess" class="game-option" type="button">Chess Game (Human vs Machine)</button>
-                <button id="game-xiangqi" class="game-option" type="button">Xiangqi (Human vs Machine)</button>
+                <button id="game-2048" class="game-option" type="button" style="--g:#edc22e">
+                    <span class="game-icon" aria-hidden="true">🔢</span>
+                    <span class="game-info">
+                        <span class="game-name">2048</span>
+                        <span class="game-desc">Slide the tiles, merge to 2048.</span>
+                        <span class="game-tags"><span class="tag">Puzzle</span><span class="tag">Solo</span></span>
+                    </span>
+                    <span class="game-play" aria-hidden="true">Play</span>
+                </button>
+                <button id="game-snake" class="game-option" type="button" style="--g:#629924">
+                    <span class="game-icon" aria-hidden="true">🐍</span>
+                    <span class="game-info">
+                        <span class="game-name">Snake</span>
+                        <span class="game-desc">Eat, grow, don't hit the wall.</span>
+                        <span class="game-tags"><span class="tag">Arcade</span><span class="tag">Swipe / Keys</span></span>
+                    </span>
+                    <span class="game-play" aria-hidden="true">Play</span>
+                </button>
+                <button id="game-tetris" class="game-option" type="button" style="--g:#3692e7">
+                    <span class="game-icon" aria-hidden="true">🧱</span>
+                    <span class="game-info">
+                        <span class="game-name">Tetris</span>
+                        <span class="game-desc">Stack the blocks, clear lines.</span>
+                        <span class="game-tags"><span class="tag">Arcade</span><span class="tag">Marathon</span></span>
+                    </span>
+                    <span class="game-play" aria-hidden="true">Play</span>
+                </button>
+                <button id="game-chess" class="game-option" type="button" style="--g:#81b64c">
+                    <span class="game-icon" aria-hidden="true">♞</span>
+                    <span class="game-info">
+                        <span class="game-name">Chess</span>
+                        <span class="game-desc">You vs Charlie, the machine.</span>
+                        <span class="game-tags"><span class="tag">vs AI</span><span class="tag">Easy / Medium / Hard</span></span>
+                    </span>
+                    <span class="game-play" aria-hidden="true">Play</span>
+                </button>
+                <button id="game-xiangqi" class="game-option" type="button" style="--g:#d64f00">
+                    <span class="game-icon game-icon-xiangqi" aria-hidden="true">帥</span>
+                    <span class="game-info">
+                        <span class="game-name">Xiangqi <span class="badge-new">New</span></span>
+                        <span class="game-desc">Chinese Chess — you vs Charlie.</span>
+                        <span class="game-tags"><span class="tag">vs AI</span><span class="tag">3 levels</span><span class="tag">Red moves first</span></span>
+                    </span>
+                    <span class="game-play" aria-hidden="true">Play</span>
+                </button>
             </div>
         </section>
 

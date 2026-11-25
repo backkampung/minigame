@@ -1,9 +1,23 @@
 :root {
-    color-scheme: light;
-    --page: #faf8ef;
-    --text: #776e65;
+    color-scheme: dark;
+    /* Warm dark arcade scheme (Chess.com system, exact hex):
+       one site accent green + one accent per game (Lichess/2048 hex).
+       --board stays the 2048 tan — the 2048 game board uses it. */
+    --page: #312e2b;
+    --page-deep: #262421;
+    --text: #ffffff;
+    --text-2: rgba(255,255,255,.72);
+    --text-3: rgba(255,255,255,.50);
+    --card: #3b3937;
+    --card-raised: #4b4847;
+    --accent: #81b64c;
+    --accent-hover: #5d9948;
+    --on-accent: #17210d;
+    --gold: #f7c631;
+    --border: rgba(255,255,255,.14);
     --board: #bbada0;
     --gap: clamp(6px, 2vw, 12px);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -18,7 +32,7 @@ body {
     justify-content: center;
     background: var(--page);
     color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: var(--font);
 }
 
 button { font: inherit; }
@@ -27,10 +41,14 @@ button:focus-visible { outline: 3px solid #5b8def; outline-offset: 3px; }
 main { width: 100%; }
 
 .game-selector, .game-container { width: min(100%, 500px); margin: 0 auto; }
+/* Selection page: warm dark arcade. Type scale from Chess.com
+   (H1 28/800, card title 20/700, body 16, tag 12 uppercase). */
 .game-selector { width: min(94vw, 600px); text-align: center; }
-h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-height: 1.1; }
-.intro { margin: clamp(10px, 3vw, 16px) 0 clamp(20px, 6vw, 32px); font-size: clamp(1rem, 4vw, 1.25rem); }
-.game-options { display: grid; gap: clamp(16px, 4vw, 24px); }
+h1 { margin: 0; color: var(--text); font-size: 28px; font-weight: 800; line-height: 1.14; }
+.intro { margin: 8px 0 12px; color: var(--text-2); font-size: 16px; line-height: 1.45; }
+.stats-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 0 0 20px; color: var(--text-3); font-size: 13px; }
+.stats-strip strong { color: var(--text); font-weight: 800; }
+.game-options { display: grid; gap: 16px; }
 .game-option, .back-button, .control-button {
     min-height: 44px;
     border: 0;
@@ -39,10 +57,9 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
-/* Game menu buttons: scale with BOTH screen width and height.
-   On a tall phone the menu was a small strip in the middle with huge
-   empty space above/below, so the selector now fills the viewport and
-   each button takes a share of viewport height, not just a fixed px size. */
+/* Game cards: whole-card tappable tile — icon tile + title + one-line
+   descriptor + tag row + Play. A 4px accent strip on top carries the
+   per-game colour; the card itself stays the same dark surface. */
 .game-selector {
     min-height: calc(100svh - 64px);
     display: flex;
@@ -50,15 +67,84 @@ h1 { margin: 0; color: var(--text); font-size: clamp(2rem, 10vw, 3.4rem); line-h
     justify-content: center;
 }
 .game-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
     width: 100%;
-    min-height: clamp(88px, 14svh, 128px);
-    padding: clamp(18px, 4vw, 24px) clamp(16px, 5vw, 28px);
-    background: var(--board); color: #fff;
-    font-size: clamp(1.6rem, 7vw, 2.2rem);
-    font-weight: 750;
+    min-height: 88px;
+    padding: 14px 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--text);
+    text-align: left;
 }
-.game-option:hover, .control-button:hover, .back-button:hover { filter: brightness(.94); }
+.game-option::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--g, var(--accent));
+}
+.game-option:hover, .control-button:hover, .back-button:hover { filter: brightness(1.08); }
 .game-option:active, .control-button:active, .back-button:active { transform: scale(.98); }
+.game-icon {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--g, var(--accent));
+    font-size: 32px;
+    line-height: 1;
+}
+.game-icon-xiangqi {
+    background: #f7e8c8;
+    border: 2px solid #c0392b;
+    color: #c0392b;
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-weight: 700;
+}
+.game-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.game-name { font-size: 20px; font-weight: 700; line-height: 1.25; }
+.game-desc { color: var(--text-2); font-size: 14px; line-height: 1.4; }
+.game-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag {
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: var(--card-raised);
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+.badge-new {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: var(--gold);
+    color: #17210d;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    vertical-align: 2px;
+}
+.game-play {
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
 
 .game-container { position: relative; }
 .game-container:has(.game-header.chess-layout) { width: min(100%, 600px); }
