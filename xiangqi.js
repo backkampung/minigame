@@ -1,5 +1,5 @@
 try {
-    const { Xiangqi } = await import('./xiangqi-engine.js');
+    const { Xiangqi } = await import('./xiangqi-engine.js?v=2');
 
     class XiangqiGame {
         constructor() {
@@ -141,7 +141,7 @@ try {
                     this.isThinking = false;
                     return;
                 }
-                const depth = { easy: 1, moderate: 2, hard: 3 }[this.difficulty] || 2;
+                const depth = { easy: 2, moderate: 3, hard: 4 }[this.difficulty] || 3;
                 const move = this.game.findBestMove('black', depth);
                 if (move && this.isActive && currentMatch === this.matchId) {
                     const char = this.glyphs[move.piece.color][move.piece.type];

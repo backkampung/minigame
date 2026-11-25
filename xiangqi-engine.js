@@ -7,6 +7,64 @@
 const VALUES = { K: 100000, R: 600, C: 300, H: 300, P: 60, A: 120, E: 120 };
 const OPP = { red: 'black', black: 'red' };
 
+// Piece-square tables, from Red's perspective: row 0 = Red's back rank,
+// row 9 = Black's back rank. A Red piece at engine row r uses PST row
+// 9 - r; a Black piece at engine row r uses PST row r (mirrored).
+// Small bonuses that make the AI develop sensibly instead of shuffling:
+// chariot/horse/cannon favour central files and sensible ranks, soldiers
+// gain as they advance and cross the river. Advisors/elephants/general
+// stay material-only (they are confined and defensive).
+const PST = {
+  R: [
+    [ 6,  8,  6, 10, 12, 10,  6,  8,  6],
+    [ 8, 10,  8, 12, 14, 12,  8, 10,  8],
+    [ 6,  8,  8, 12, 12, 12,  8,  8,  6],
+    [ 8, 10, 10, 14, 14, 14, 10, 10,  8],
+    [ 8, 10, 10, 14, 16, 14, 10, 10,  8],
+    [ 6, 10,  8, 14, 16, 14,  8, 10,  6],
+    [ 4,  8,  6, 12, 12, 12,  6,  8,  4],
+    [ 2,  6,  4, 10, 10, 10,  4,  6,  2],
+    [ 4,  2,  4,  8,  8,  8,  4,  2,  4],
+    [ 0,  6,  2,  8, 10,  8,  2,  6,  0],
+  ],
+  H: [
+    [ 2,  4,  2,  6,  8,  6,  2,  4,  2],
+    [ 4,  6,  6,  8, 10,  8,  6,  6,  4],
+    [ 2,  6,  4,  8,  8,  8,  4,  6,  2],
+    [ 4,  8,  6, 10, 12, 10,  6,  8,  4],
+    [ 4,  6,  6, 10, 10, 10,  6,  6,  4],
+    [ 2,  6,  4,  8, 10,  8,  4,  6,  2],
+    [ 0,  4,  2,  6,  8,  6,  2,  4,  0],
+    [ 0,  2,  0,  4,  6,  4,  0,  2,  0],
+    [ 0,  0,  0,  2,  4,  2,  0,  0,  0],
+    [ 0,  0,  0,  0,  2,  0,  0,  0,  0],
+  ],
+  C: [
+    [ 4,  6,  4,  8, 10,  8,  4,  6,  4],
+    [ 6,  8,  6, 10, 12, 10,  6,  8,  6],
+    [ 4,  6,  6,  8, 10,  8,  6,  6,  4],
+    [ 4,  8,  6, 10, 10, 10,  6,  8,  4],
+    [ 4,  6,  6,  8, 10,  8,  6,  6,  4],
+    [ 2,  6,  4,  8, 10,  8,  4,  6,  2],
+    [ 0,  4,  2,  6,  8,  6,  2,  4,  0],
+    [ 0,  2,  0,  4,  6,  4,  0,  2,  0],
+    [ 0,  0,  0,  2,  4,  2,  0,  0,  0],
+    [ 0,  0,  0,  0,  2,  0,  0,  0,  0],
+  ],
+  P: [
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 2,  4,  2,  6,  8,  6,  2,  4,  2],
+    [ 4,  6,  4,  8, 10,  8,  4,  6,  4],
+    [ 6,  8,  6, 10, 12, 10,  6,  8,  6],
+    [ 8, 10,  8, 12, 14, 12,  8, 10,  8],
+    [10, 12, 10, 14, 16, 14, 10, 12, 10],
+  ],
+};
+
 function inBoard(r, c) { return r >= 0 && r < 10 && c >= 0 && c < 9; }
 function inPalace(color, r, c) {
   if (c < 3 || c > 5) return false;
@@ -288,17 +346,9 @@ export class Xiangqi {
         const p = this.board[r][c];
         if (!p) continue;
         let v = VALUES[p.type];
-        // Small positional terms (symmetric; soldier term is colour-aware).
-        if (p.type === 'P') {
-          const adv = p.color === 'red' ? (9 - r) : r;
-          v += adv * 6 + ((p.color === 'red' ? r <= 4 : r >= 5) ? 15 : 0);
-        } else if (p.type === 'R') {
-          v += (c >= 3 && c <= 5) ? 10 : ((c === 2 || c === 6) ? 5 : 0);
-        } else if (p.type === 'C') {
-          v += (c >= 3 && c <= 5) ? 5 : 0;
-        } else if (p.type === 'H') {
-          v += (c >= 3 && c <= 5) ? 5 : 0;
-        }
+        // Positional bonus from the piece-square table (mirrored by colour).
+        const table = PST[p.type];
+        if (table) v += table[p.color === 'red' ? 9 - r : r][c];
         score += p.color === color ? v : -v;
       }
     }
@@ -314,10 +364,37 @@ export class Xiangqi {
     });
   }
 
+  // Capture-only search past the horizon, so the AI does not blunder a
+  // piece by stopping one move before a recapture (the classic "stupid"
+  // hang). Stand-pat first; if in check, search every legal move so a
+  // mating reply is seen. Bounded by qdepth and the node cap.
+  _quiesce(alpha, beta, color, qdepth) {
+    this._nodes++;
+    if (this._nodeCap && this._nodes > this._nodeCap) return this.evaluate(color);
+    const inCheck = this.isInCheck(color);
+    const standPat = this.evaluate(color);
+    if (!inCheck) {
+      if (standPat >= beta) return beta;
+      if (standPat > alpha) alpha = standPat;
+      if (qdepth <= 0) return alpha;
+    }
+    const moves = this._orderMoves(this._legalMovesFor(color));
+    if (moves.length === 0) return -100000; // checkmate or stalemate: loss
+    const caps = inCheck ? moves : moves.filter(m => m.captured);
+    for (const m of caps) {
+      this.makeMove(m);
+      const s = -this._quiesce(-beta, -alpha, OPP[color], qdepth - 1);
+      this.undoMove();
+      if (s >= beta) return beta;
+      if (s > alpha) alpha = s;
+    }
+    return alpha;
+  }
+
   _negamax(depth, alpha, beta, color) {
     this._nodes++;
     if (this._nodeCap && this._nodes > this._nodeCap) return this.evaluate(color);
-    if (depth === 0) return this.evaluate(color);
+    if (depth === 0) return this._quiesce(alpha, beta, color, 2);
     const moves = this._orderMoves(this._legalMovesFor(color));
     if (moves.length === 0) return -100000; // checkmate or stalemate: loss
     let best = -Infinity;
@@ -337,6 +414,10 @@ export class Xiangqi {
     if (rootMoves.length === 0) return null;
     if (depth < 1) depth = 1;
     this._nodes = 0;
+    // Bound the search so Hard (depth 4 + quiescence) still answers in
+    // about a second; when the cap is hit the search returns the best
+    // static evaluation seen so far instead of hanging.
+    this._nodeCap = 250000;
     const scored = [];
     let bestScore = -Infinity;
     for (const m of rootMoves) {

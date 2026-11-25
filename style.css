@@ -649,13 +649,17 @@ body.game-active .chess-setup {
 }
 .xiangqi-move-list li { min-width: 72px; padding: 2px 4px; }
 
-/* Xiangqi: chrome is larger than chess (wrapped header, players, move
-   list) and the board is taller than wide, so the height limit usually
-   wins: chrome about 400px (back 56 + header 110 + New game 54 + move
-   list 68 + tips 59 + body padding 28 = 375, rounded up) and the board
-   height is width * 10/9, so width is capped at 9/10 of the free height. */
+/* Xiangqi: same sizing as chess on PC — the board is as wide as the
+   chess board (560px) so it does not look small next to it. The old
+   formula capped width at 9/10 of the free height (the board is
+   taller than wide), which shrank it to ~495px on a PC while chess
+   got the full 560px. Chrome about 400px (back 56 + header 110 +
+   New game 54 + move list 68 + tips 59 + body padding 28 = 375,
+   rounded up). The board is taller than chess, so on a shorter
+   screen the page may scroll a little — that is the trade for a
+   board as big as chess. */
 body.game-active #game-board.xiangqi-board {
-    width: min(100%, 560px, calc((100svh - 400px) * 0.9)) !important;
+    width: min(100%, 560px, calc(100svh - 380px)) !important;
 }
 body.game-active .xiangqi-move-list { max-height: 56px; }
 body.game-active .xiangqi-setup {
@@ -667,7 +671,7 @@ body.game-active .xiangqi-setup {
 }
 @media (orientation: landscape) and (max-height: 520px) {
     body.game-active #game-board.xiangqi-board {
-        width: min(100%, 560px, calc((100svh - 220px) * 0.9)) !important;
+        width: min(100%, 560px, calc(100svh - 220px)) !important;
     }
     body.game-active .xiangqi-move-list { display: none; }
 }
