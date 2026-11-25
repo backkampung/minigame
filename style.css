@@ -585,18 +585,20 @@ body.game-active .chess-setup {
     display: grid;
     place-items: center;
     /* The board is 9 cols x 10 rows with a 9/10 aspect ratio, so every
-       grid cell is square. 74% of the cell + aspect-ratio 1 = a square,
+       grid cell is square. 60% of the cell + aspect-ratio 1 = a square,
        and border-radius 50% makes it a perfect round disc in every
-       browser. 74% (not 86%) leaves clear space around each piece so
-       the grid lines show and the board breathes, like a real board. */
-    width: 74%;
+       browser. 60% leaves a clear gap around each piece so the grid
+       lines show and the board looks like a real board — 74% and 86%
+       both crowded the pieces together. The glyph scales with the
+       disc so it never overflows it. */
+    width: 60%;
     aspect-ratio: 1;
     border: 2px solid currentColor;
     border-radius: 50%;
     background: #f7e8c8;
     box-shadow: 0 1px 2px rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 50%);
     font-family: "Songti SC", "Noto Serif CJK SC", serif;
-    font-size: clamp(1.1rem, 7vw, 2.2rem);
+    font-size: clamp(0.9rem, 4.5vw, 1.8rem);
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
