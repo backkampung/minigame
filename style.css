@@ -513,7 +513,6 @@ body.game-active .chess-setup {
        centres of the grid cells; the line layer is inset by half a cell
        so its corners land exactly on the four corner points. */
     width: min(100%, 560px, 68svh) !important;
-    container-type: inline-size;
     margin: 0 auto;
     grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
     grid-template-rows: repeat(10, minmax(0, 1fr)) !important;
@@ -525,9 +524,13 @@ body.game-active .chess-setup {
 }
 .xiangqi-lines {
     position: absolute;
-    /* Half a cell on each side: one cell is 100cqw/9 wide and (100cqw*10/9)/10
-       = 100cqw/9 tall, so half a cell is ~5.56cqw. */
-    inset: 5.56cqw;
+    /* Half a cell on each side: one cell is 1/9 of the width and 1/10 of
+       the height, so half a cell is 5.56% across and 5% down. Percentages
+       (not cqw) so this works in every browser. */
+    left: 5.56%;
+    right: 5.56%;
+    top: 5%;
+    bottom: 5%;
     width: auto;
     height: auto;
     pointer-events: none;
@@ -560,18 +563,19 @@ body.game-active .chess-setup {
 .xiangqi-piece {
     display: grid;
     place-items: center;
-    width: 9.5cqw;
-    height: 9.5cqw;
+    /* The board is 9 cols x 10 rows with a 9/10 aspect ratio, so every
+       grid cell is square. 86% of the cell + aspect-ratio 1 = a square,
+       and border-radius 50% makes it a perfect round disc in every
+       browser. (The old 9.5cqw sizing needed container queries, which
+       older browsers ignore — the disc then collapsed to a blob.) */
+    width: 86%;
+    aspect-ratio: 1;
     border: 2px solid currentColor;
     border-radius: 50%;
     background: #f7e8c8;
     box-shadow: 0 1px 2px rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 50%);
     font-family: "Songti SC", "Noto Serif CJK SC", serif;
     font-size: clamp(1.1rem, 7vw, 2.2rem);
-    /* One point cell is 100cqw/9 wide, the piece is 9.5cqw across, so the
-       glyph at ~6.5cqw fills it without touching the rim. The clamp above
-       is only a fallback for browsers without container queries. */
-    font-size: 6.5cqw;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
