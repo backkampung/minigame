@@ -537,6 +537,7 @@ body.game-active .chess-setup {
     z-index: 0;
 }
 .xiangqi-lines-stroke line { stroke: #7a5c33; stroke-width: 3; }
+.xiangqi-mark { fill: #7a5c33; }
 .xiangqi-river-text {
     fill: #8a6d3b;
     font-family: "Songti SC", "Noto Serif CJK SC", serif;

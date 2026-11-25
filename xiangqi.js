@@ -186,6 +186,7 @@ try {
 
         // SVG line layer: outer border, 9 verticals (broken at the river
         // except the two outer files), 10 horizontals, palace diagonals,
+        // small round position marks at every Cannon and Soldier point,
         // and the river text. viewBox 800x900 = 9 points x 10 points.
         linesSvg() {
             const v = [];
@@ -198,10 +199,18 @@ try {
             for (let r = 0; r <= 9; r++) h.push(`<line x1="0" y1="${r * 100}" x2="800" y2="${r * 100}"/>`);
             const palace = '<line x1="300" y1="0" x2="500" y2="200"/><line x1="500" y1="0" x2="300" y2="200"/>'
                 + '<line x1="300" y1="700" x2="500" y2="900"/><line x1="500" y1="700" x2="300" y2="900"/>';
+            // Small round marks at the Cannon points (4) and Soldier
+            // points (10) — the dots a real board has. Edge Soldier
+            // points sit on the border, so the SVG clips them to a half
+            // dot, exactly like a real board. (c, r) pairs.
+            const marks = [[1, 2], [7, 2], [1, 7], [7, 7],
+                [0, 3], [2, 3], [4, 3], [6, 3], [8, 3],
+                [0, 6], [2, 6], [4, 6], [6, 6], [8, 6]]
+                .map(([c, r]) => `<circle class="xiangqi-mark" cx="${c * 100}" cy="${r * 100}" r="9"/>`).join('');
             const river = '<text x="200" y="468" class="xiangqi-river-text">楚河</text>'
                 + '<text x="600" y="468" class="xiangqi-river-text">汉界</text>';
             return `<svg class="xiangqi-lines" viewBox="0 0 800 900" aria-hidden="true">`
-                + `<g class="xiangqi-lines-stroke">${v.join('')}${h.join('')}${palace}</g>${river}</svg>`;
+                + `<g class="xiangqi-lines-stroke">${v.join('')}${h.join('')}${palace}</g>${marks}${river}</svg>`;
         }
 
         render() {
