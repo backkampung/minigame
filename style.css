@@ -484,3 +484,153 @@ body.game-active .chess-setup {
     body.game-active .chess-move-list { display: none; }
     body.game-active .tips { display: none; }
 }
+
+/* ===== Xiangqi ===== */
+.game-container:has(.game-header.xiangqi-layout) { width: min(100%, 600px); }
+.game-header.xiangqi-layout { flex-wrap: wrap; justify-content: center; }
+.game-header.xiangqi-layout h1 { flex: 1 0 100%; font-size: clamp(1.7rem, 8vw, 3.2rem); text-align: center; }
+
+.xiangqi-setup {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: min(100%, 480px);
+    margin: 12px auto 18px;
+    padding: clamp(16px, 5vw, 24px);
+    border-radius: 10px;
+    background: #eee4da;
+    text-align: center;
+}
+.xiangqi-setup label { font-weight: 750; }
+.xiangqi-setup p { margin: 0 0 4px; }
+.xiangqi-setup .control-button { min-width: 150px; }
+.xiangqi-players .score-box { min-width: 118px; }
+.xiangqi-players .score-box > span:last-child { display: block; font-size: .9rem; font-weight: 800; white-space: nowrap; }
+
+.xiangqi-board {
+    /* 9 points wide x 10 points tall. The board is taller than wide, so
+       on a phone the height limit (below) usually wins. Points sit at the
+       centres of the grid cells; the line layer is inset by half a cell
+       so its corners land exactly on the four corner points. */
+    width: min(100%, 560px, 68svh) !important;
+    container-type: inline-size;
+    margin: 0 auto;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(10, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    aspect-ratio: 9 / 10 !important;
+    background: #f0d9a8 !important;
+    touch-action: manipulation !important;
+}
+.xiangqi-lines {
+    position: absolute;
+    /* Half a cell on each side: one cell is 100cqw/9 wide and (100cqw*10/9)/10
+       = 100cqw/9 tall, so half a cell is ~5.56cqw. */
+    inset: 5.56cqw;
+    width: auto;
+    height: auto;
+    pointer-events: none;
+    z-index: 0;
+}
+.xiangqi-lines-stroke line { stroke: #7a5c33; stroke-width: 3; }
+.xiangqi-river-text {
+    fill: #8a6d3b;
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: 52px;
+    text-anchor: middle;
+}
+.xiangqi-point {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 0;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 1;
+}
+.xiangqi-point.selected { background: rgb(237 207 114 / 55%); }
+.xiangqi-point.last-move .xiangqi-piece { box-shadow: inset 0 0 0 3px rgb(246 200 75 / 70%); }
+.xiangqi-piece {
+    display: grid;
+    place-items: center;
+    width: 9.5cqw;
+    height: 9.5cqw;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: #f7e8c8;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 50%);
+    font-family: "Songti SC", "Noto Serif CJK SC", serif;
+    font-size: clamp(1.1rem, 7vw, 2.2rem);
+    /* One point cell is 100cqw/9 wide, the piece is 9.5cqw across, so the
+       glyph at ~6.5cqw fills it without touching the rim. The clamp above
+       is only a fallback for browsers without container queries. */
+    font-size: 6.5cqw;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+.piece-red { color: #c0392b; }
+.piece-black { color: #2c2c2c; }
+.xiangqi-point.selected .xiangqi-piece { box-shadow: 0 0 0 3px #edcf72, 0 1px 2px rgb(0 0 0 / 30%); }
+.xiangqi-point.legal-target::after {
+    position: absolute;
+    width: 24%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgb(65 95 65 / 55%);
+    content: "";
+    pointer-events: none;
+}
+.xiangqi-point.capture-target::after {
+    position: absolute;
+    inset: 4%;
+    border: 4px solid rgb(113 57 42 / 64%);
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+}
+.xiangqi-overlay { border: 0; }
+.xiangqi-overlay .game-over-card { width: min(100%, 340px); }
+.xiangqi-move-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    max-height: 110px;
+    overflow-y: auto;
+    margin: 12px auto 0;
+    padding: 10px 14px 10px 34px;
+    border-radius: 8px;
+    background: #eee4da;
+    color: var(--text);
+}
+.xiangqi-move-list li { min-width: 72px; padding: 2px 4px; }
+
+/* Xiangqi: chrome is larger than chess (wrapped header, players, move
+   list) and the board is taller than wide, so the height limit usually
+   wins: chrome about 400px (back 56 + header 110 + New game 54 + move
+   list 68 + tips 59 + body padding 28 = 375, rounded up) and the board
+   height is width * 10/9, so width is capped at 9/10 of the free height. */
+body.game-active #game-board.xiangqi-board {
+    width: min(100%, 560px, calc((100svh - 400px) * 0.9)) !important;
+}
+body.game-active .xiangqi-move-list { max-height: 56px; }
+body.game-active .xiangqi-setup {
+    margin: 8px auto 0;
+    padding: 16px;
+    gap: 8px;
+    max-height: calc(100svh - 300px);
+    overflow-y: auto;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+    body.game-active #game-board.xiangqi-board {
+        width: min(100%, 560px, calc((100svh - 220px) * 0.9)) !important;
+    }
+    body.game-active .xiangqi-move-list { display: none; }
+}

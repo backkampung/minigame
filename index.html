@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#faf8ef">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src 'none'; upgrade-insecure-requests">
-    <meta name="description" content="Play 2048, Snake, Tetris, and chess in your browser on desktop or mobile.">
-    <title>Arcade - 2048, Snake, Tetris, and Chess</title>
+    <meta name="description" content="Play 2048, Snake, Tetris, chess, and Xiangqi in your browser on desktop or mobile.">
+    <title>Arcade - 2048, Snake, Tetris, Chess, and Xiangqi</title>
     <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
@@ -19,6 +19,7 @@
                 <button id="game-snake" class="game-option" type="button">Snake</button>
                 <button id="game-tetris" class="game-option" type="button">Tetris</button>
                 <button id="game-chess" class="game-option" type="button">Chess Game (Human vs Machine)</button>
+                <button id="game-xiangqi" class="game-option" type="button">Xiangqi (Human vs Machine)</button>
             </div>
         </section>
 
@@ -33,6 +34,10 @@
                 <div id="chess-players" class="score-group chess-players hidden" aria-live="polite">
                     <div class="score-box"><span class="score-label">You · White</span><span id="human-turn-state">Ready</span></div>
                     <div class="score-box"><span class="score-label">Charlie · Black</span><span id="machine-turn-state">Ready</span></div>
+                </div>
+                <div id="xiangqi-players" class="score-group xiangqi-players hidden" aria-live="polite">
+                    <div class="score-box"><span class="score-label">You · Red</span><span id="xiangqi-human-turn-state">Ready</span></div>
+                    <div class="score-box"><span class="score-label">Charlie · Black</span><span id="xiangqi-machine-turn-state">Ready</span></div>
                 </div>
             </div>
             <div id="game-controls" class="game-controls">
@@ -52,11 +57,22 @@
                 <p>You play White. Charlie (Machine) plays Black.</p>
                 <button id="start-chess" class="control-button" type="button">Start match</button>
             </section>
+            <section id="xiangqi-setup" class="xiangqi-setup hidden" aria-label="Xiangqi game setup">
+                <label for="xiangqi-difficulty">Charlie’s difficulty</label>
+                <select id="xiangqi-difficulty" class="difficulty-select">
+                    <option value="easy">Easy</option>
+                    <option value="moderate" selected>Moderate</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <p>You play Red. Charlie (Machine) plays Black.</p>
+                <button id="start-xiangqi" class="control-button" type="button">Start match</button>
+            </section>
             <div id="game-board" role="grid" aria-label="Game board"></div>
             <div id="tetris-controls" class="tetris-controls hidden" aria-label="Tetris controls">
                 <button class="control-button" type="button" data-action="pause" aria-label="Pause or resume">Pause</button>
             </div>
             <ol id="chess-move-list" class="chess-move-list hidden" aria-label="Move history"></ol>
+            <ol id="xiangqi-move-list" class="xiangqi-move-list hidden" aria-label="Move history"></ol>
             <p id="game-status" class="tips" aria-live="polite">Use the arrow keys or swipe the board.</p>
         </section>
     </main>
@@ -64,6 +80,7 @@
     <script src="snake.js"></script>
     <script src="tetris.js"></script>
     <script type="module" src="chess.js"></script>
+    <script type="module" src="xiangqi.js"></script>
     <script src="main.js?v=4"></script>
 </body>
 </html>

@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '2048': new Game2048(),
         Snake: new SnakeGame(),
         Tetris: new TetrisGame(),
-        Chess: null
+        Chess: null,
+        Xiangqi: null
     };
 
     // chess.js is an ES module with top-level await, so it may finish loading
@@ -11,6 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function getChess() {
         if (!games.Chess && window.ChessGame) games.Chess = new window.ChessGame();
         return games.Chess;
+    }
+
+    // xiangqi.js is an ES module with top-level await, so it may finish loading
+    // after DOMContentLoaded. Create the Xiangqi game lazily instead of once at startup.
+    function getXiangqi() {
+        if (!games.Xiangqi && window.XiangqiGame) games.Xiangqi = new window.XiangqiGame();
+        return games.Xiangqi;
     }
     const selector = document.getElementById('game-selector');
     const container = document.getElementById('game-container');
@@ -22,9 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const chessPlayers = document.getElementById('chess-players');
     const gameHeader = document.querySelector('.game-header');
     const chessMoveList = document.getElementById('chess-move-list');
+    const xiangqiSetup = document.getElementById('xiangqi-setup');
+    const xiangqiPlayers = document.getElementById('xiangqi-players');
+    const xiangqiMoveList = document.getElementById('xiangqi-move-list');
     const scoreGroup = document.querySelector('.score-group:not(.chess-players)');
     const gameControls = document.querySelector('.game-controls');
     const difficulty = document.getElementById('chess-difficulty');
+    const xiangqiDifficulty = document.getElementById('xiangqi-difficulty');
     let currentGame = null;
     let currentId = null;
 
@@ -33,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentGame = null;
         currentId = null;
         board.replaceChildren();
-        board.classList.remove('tetris-board', 'chess-board');
+        board.classList.remove('tetris-board', 'chess-board', 'xiangqi-board');
         board.classList.remove('hidden');
         board.setAttribute('aria-label', 'Game board');
         document.body.classList.remove('tetris-active');
@@ -43,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chessPlayers.classList.add('hidden');
         gameHeader.classList.remove('chess-layout');
         chessMoveList.classList.add('hidden');
+        xiangqiSetup.classList.add('hidden');
+        xiangqiPlayers.classList.add('hidden');
+        gameHeader.classList.remove('xiangqi-layout');
+        xiangqiMoveList.classList.add('hidden');
         scoreGroup.classList.remove('hidden');
         gameControls.classList.remove('hidden');
         document.getElementById('restart-button').classList.remove('hidden');
@@ -104,13 +120,56 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('chess-game-ready', refreshChessSetup);
     window.addEventListener('chess-game-load-error', refreshChessSetup);
 
+    function openXiangqiSetup() {
+        stopCurrentGame();
+        currentId = 'Xiangqi';
+        currentGame = getXiangqi();
+        selector.classList.add('hidden');
+        container.classList.remove('hidden');
+        title.textContent = 'Human vs Machine';
+        gameHeader.classList.add('xiangqi-layout');
+        scoreGroup.classList.add('hidden');
+        xiangqiPlayers.classList.remove('hidden');
+        xiangqiSetup.classList.remove('hidden');
+        document.body.classList.add('game-active');
+        board.classList.add('hidden');
+        gameControls.classList.add('hidden');
+        status.textContent = 'Choose Charlie’s difficulty, then start a match.';
+        document.getElementById('xiangqi-human-turn-state').textContent = 'Ready';
+        document.getElementById('xiangqi-machine-turn-state').textContent = 'Ready';
+        refreshXiangqiSetup();
+    }
+
+    function refreshXiangqiSetup() {
+        if (currentId !== 'Xiangqi') return;
+        const startButton = document.getElementById('start-xiangqi');
+        if (getXiangqi()) {
+            startButton.disabled = false;
+            if (!board.classList.contains('xiangqi-board')) status.textContent = 'Choose Charlie’s difficulty, then start a match.';
+        } else if (window.xiangqiLibraryError) {
+            startButton.disabled = true;
+            status.textContent = 'Xiangqi failed to load. Please refresh the page, or go back and choose another game.';
+        } else {
+            startButton.disabled = true;
+            status.textContent = 'Loading the Xiangqi engine…';
+        }
+    }
+
+    window.addEventListener('xiangqi-game-ready', refreshXiangqiSetup);
+    window.addEventListener('xiangqi-game-load-error', refreshXiangqiSetup);
+
     document.getElementById('game-2048').addEventListener('click', () => startGame('2048'));
     document.getElementById('game-snake').addEventListener('click', () => startGame('Snake'));
     document.getElementById('game-tetris').addEventListener('click', () => startGame('Tetris'));
     document.getElementById('game-chess').addEventListener('click', openChessSetup);
+    document.getElementById('game-xiangqi').addEventListener('click', openXiangqiSetup);
     document.getElementById('start-chess').addEventListener('click', () => {
         if (!getChess()) return;
         chessGameStart();
+    });
+    document.getElementById('start-xiangqi').addEventListener('click', () => {
+        if (!getXiangqi()) return;
+        xiangqiGameStart();
     });
     function chessGameStart() {
         chessSetup.classList.add('hidden');
@@ -120,8 +179,17 @@ document.addEventListener('DOMContentLoaded', () => {
         getChess().startMatch(difficulty.value);
     }
 
+    function xiangqiGameStart() {
+        xiangqiSetup.classList.add('hidden');
+        board.classList.remove('hidden');
+        gameControls.classList.remove('hidden');
+        document.getElementById('restart-button').classList.remove('hidden');
+        getXiangqi().startMatch(xiangqiDifficulty.value);
+    }
+
     document.getElementById('restart-button').addEventListener('click', () => {
         if (currentId === 'Chess') chessGameStart();
+        else if (currentId === 'Xiangqi') xiangqiGameStart();
         else if (currentId) startGame(currentId);
     });
     document.getElementById('back-button').addEventListener('click', () => {
