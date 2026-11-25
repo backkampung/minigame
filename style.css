@@ -577,6 +577,10 @@ body.game-active .chess-setup {
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    /* Each point is a container, so the piece glyph below can be sized
+       in cqw — relative to the point (and therefore to the disc),
+       never a fixed size. The disc stays 60% of the point. */
+    container-type: inline-size;
     z-index: 1;
 }
 .xiangqi-point.selected { background: rgb(237 207 114 / 55%); }
@@ -598,7 +602,13 @@ body.game-active .chess-setup {
     background: #f7e8c8;
     box-shadow: 0 1px 2px rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 50%);
     font-family: "Songti SC", "Noto Serif CJK SC", serif;
-    font-size: clamp(0.9rem, 4.5vw, 1.8rem);
+    /* Glyph size is RELATIVE to the piece, not a fixed size: 38cqw is
+       38% of the point, and the disc is 60% of the point, so the
+       character is ~63% of the disc — clear margin all round, like a
+       real piece — and it scales with the board on any screen. The
+       clamp before it is the fallback for browsers without cqw. */
+    font-size: clamp(0.9rem, 4vw, 1.8rem);
+    font-size: 38cqw;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
