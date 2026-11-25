@@ -233,10 +233,16 @@ try {
                         (this.lastMove.to.r === r && this.lastMove.to.c === c))) point.classList.add('last-move');
                     const target = targets.get(`${r},${c}`);
                     if (target) point.classList.add(piece ? 'capture-target' : 'legal-target');
-                    const pieceSpan = document.createElement('span');
-                    pieceSpan.className = `xiangqi-piece ${piece ? `piece-${piece.color}` : ''}`;
-                    pieceSpan.textContent = piece ? this.glyphs[piece.color][piece.type] : '';
-                    point.appendChild(pieceSpan);
+                    // Only occupied points get a disc. Empty points must
+                    // stay transparent so the board lines, the river text
+                    // and the small round position marks show through —
+                    // otherwise the board becomes a field of pale discs.
+                    if (piece) {
+                        const pieceSpan = document.createElement('span');
+                        pieceSpan.className = `xiangqi-piece piece-${piece.color}`;
+                        pieceSpan.textContent = this.glyphs[piece.color][piece.type];
+                        point.appendChild(pieceSpan);
+                    }
                     point.setAttribute('role', 'gridcell');
                     point.setAttribute('aria-label', piece
                         ? `${piece.color === 'red' ? 'Red' : 'Black'} ${this.pieceNames[piece.type]} at row ${r}, column ${c}`
