@@ -192,8 +192,17 @@ try {
             const v = [];
             for (let c = 0; c <= 8; c++) {
                 const x = c * 100;
-                if (c === 0 || c === 8) v.push(`<line x1="${x}" y1="0" x2="${x}" y2="900"/>`);
-                else v.push(`<line x1="${x}" y1="0" x2="${x}" y2="400"/><line x1="${x}" y1="500" x2="${x}" y2="900"/>`);
+                // The two outer files are full-height lines. They sit
+                // exactly on the viewBox edge (x=0 / x=800), where the
+                // stroke is half-clipped; on some renderers the right
+                // one vanishes entirely, leaving the board's outer
+                // rectangle open on the right. Inset them 2 units so
+                // the full 3-unit stroke is inside the viewBox — a
+                // ~1px shift, invisible against the piece centres.
+                if (c === 0 || c === 8) {
+                    const lx = c === 0 ? 2 : 798;
+                    v.push(`<line x1="${lx}" y1="0" x2="${lx}" y2="900"/>`);
+                } else v.push(`<line x1="${x}" y1="0" x2="${x}" y2="400"/><line x1="${x}" y1="500" x2="${x}" y2="900"/>`);
             }
             const h = [];
             for (let r = 0; r <= 9; r++) h.push(`<line x1="0" y1="${r * 100}" x2="800" y2="${r * 100}"/>`);
