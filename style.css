@@ -486,7 +486,10 @@ body.game-active:not(.tetris-active) #game-board {
 body.game-active #game-board.chess-board {
     width: min(100%, 560px, calc(100svh - 380px)) !important;
 }
-body.game-active .chess-move-list { max-height: 56px; }
+/* The chess move list stands alone too: same fix as Xiangqi — a fixed
+   56px box, always shown from match start, scrolling inside, so
+   recording a move never squeezes or shifts the board. */
+body.game-active .chess-move-list { height: 56px; }
 body.game-active .chess-setup {
     margin: 8px auto 0;
     padding: 16px;

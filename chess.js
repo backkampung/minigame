@@ -326,7 +326,6 @@ try {
                 item.textContent = `${Math.floor(index / 2) + 1}. ${history[index]}${history[index + 1] ? `  ${history[index + 1]}` : ''}`;
                 list.appendChild(item);
             }
-            list.classList.toggle('hidden', history.length === 0);
         }
     }
 
