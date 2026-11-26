@@ -184,6 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
         board.classList.remove('hidden');
         gameControls.classList.remove('hidden');
         document.getElementById('restart-button').classList.remove('hidden');
+        // The move list is always shown from the start of a match at its
+        // fixed height, even with no moves yet, so recording a move never
+        // changes the layout or shifts the board.
+        xiangqiMoveList.classList.remove('hidden');
         getXiangqi().startMatch(xiangqiDifficulty.value);
     }
 

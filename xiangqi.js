@@ -107,7 +107,7 @@ try {
         playMove(move) {
             if (!this.isActive || this.isThinking || !this.game) return;
             const char = this.glyphs[move.piece.color][move.piece.type];
-            this.moveHistory.push({ side: move.piece.color, char, from: { ...move.from }, to: { ...move.to } });
+            this.moveHistory.push({ side: move.piece.color, char, from: { ...move.from }, to: { ...move.to }, wxf: this.wxfNotation(move) });
             this.lastMove = { from: { ...move.from }, to: { ...move.to } };
             this.game.makeMove(move);
             this.selected = null;
@@ -145,7 +145,7 @@ try {
                 const move = this.game.findBestMove('black', depth);
                 if (move && this.isActive && currentMatch === this.matchId) {
                     const char = this.glyphs[move.piece.color][move.piece.type];
-                    this.moveHistory.push({ side: move.piece.color, char, from: { ...move.from }, to: { ...move.to } });
+                    this.moveHistory.push({ side: move.piece.color, char, from: { ...move.from }, to: { ...move.to }, wxf: this.wxfNotation(move) });
                     this.lastMove = { from: { ...move.from }, to: { ...move.to } };
                     this.game.makeMove(move);
                 }
@@ -254,18 +254,49 @@ try {
             this.updateTurnCards();
         }
 
+        // WXF (World Xiangqi Federation) notation — the international
+        // contest standard. Files are numbered 1-9 from each side's
+        // right to left: Red file = 9 - col, Black file = col + 1.
+        // A move is <Piece><File><+|-|=><Number>: + = forward (toward
+        // the opponent), - = backward, = = sideways to the target
+        // file. For +/-, Number = points moved; for =, Number = the
+        // target file. When two pieces of the same type share a file,
+        // the file number is replaced by + (front piece, closer to the
+        // opponent) or - (rear piece). Call before makeMove so the
+        // board still shows the piece on its starting square.
+        wxfNotation(move) {
+            const type = move.piece.type;
+            const color = move.piece.color;
+            const from = move.from, to = move.to;
+            const fileOf = (c) => color === 'red' ? 9 - c : c + 1;
+            const fromFile = fileOf(from.c);
+            let filePart = String(fromFile);
+            const board = this.game.board;
+            const sameFile = [];
+            for (let r = 0; r < 10; r++) {
+                const p = board[r][from.c];
+                if (p && p.type === type && p.color === color) sameFile.push({ r, c: from.c });
+            }
+            if (sameFile.length > 1) {
+                const frontFirst = sameFile.slice().sort((a, b) => color === 'red' ? a.r - b.r : b.r - a.r);
+                filePart = (frontFirst[0].r === from.r) ? '+' : '-';
+            }
+            if (from.r === to.r) return type + filePart + '=' + fileOf(to.c);
+            const forward = color === 'red' ? to.r < from.r : to.r > from.r;
+            return type + filePart + (forward ? '+' : '-') + Math.abs(to.r - from.r);
+        }
+
         renderHistory() {
             const list = document.getElementById('xiangqi-move-list');
             if (!list) return;
             list.replaceChildren();
             for (let i = 0; i < this.moveHistory.length; i += 2) {
                 const item = document.createElement('li');
-                const fmt = m => `${m.side === 'red' ? '红' : '黑'} ${m.char} (${m.from.r},${m.from.c}) → (${m.to.r},${m.to.c})`;
+                const fmt = m => m.wxf || '';
                 item.textContent = `${Math.floor(i / 2) + 1}. ${fmt(this.moveHistory[i])}`
                     + (this.moveHistory[i + 1] ? `  ${fmt(this.moveHistory[i + 1])}` : '');
                 list.appendChild(item);
             }
-            list.classList.toggle('hidden', this.moveHistory.length === 0);
         }
     }
 

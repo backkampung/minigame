@@ -467,7 +467,8 @@ body.game-active:not(.tetris-active) .back-button,
 body.game-active:not(.tetris-active) .game-header,
 body.game-active:not(.tetris-active) .game-controls,
 body.game-active:not(.tetris-active) .tips,
-body.game-active:not(.tetris-active) .chess-move-list { flex-shrink: 0; }
+body.game-active:not(.tetris-active) .chess-move-list,
+body.game-active:not(.tetris-active) .xiangqi-move-list { flex-shrink: 0; }
 body.game-active:not(.tetris-active) .tips { margin-top: 8px; }
 /* Square boards (2048, Snake): chrome = back + header + New game +
    tips + body padding, about 290px. On a tall phone the width limit
@@ -661,7 +662,13 @@ body.game-active .chess-setup {
 body.game-active #game-board.xiangqi-board {
     width: min(100%, 560px, calc(100svh - 380px)) !important;
 }
-body.game-active .xiangqi-move-list { max-height: 56px; }
+/* The move list stands alone: a fixed-height box that always reserves
+   the same space, whether empty or full, so recording a move never
+   squeezes or shifts the board or any other item. It scrolls inside
+   when the history grows. (max-height let it grow from 0 to 56px as
+   moves were added, and the board — the only shrinkable flex item —
+   shrank to make room, which is the shifting the user saw.) */
+body.game-active .xiangqi-move-list { height: 56px; }
 body.game-active .xiangqi-setup {
     margin: 8px auto 0;
     padding: 16px;
