@@ -487,12 +487,16 @@ body.game-active:not(.tetris-active) #game-board {
    the board shrink (flex-shrink: 1), and on a height-constrained
    screen the Chess board shrank 12px (560 -> 548) while Xiangqi,
    with flex-shrink: 0, did not — so they still came out different
-   sizes even with the same allowance. With flex-shrink: 0 both stay
-   at the formula width. The move list itself may scroll internally
-   when long. */
+   sizes even with the same allowance. And padding: 0 matters as
+   well: the base Chess rule has 6px padding, so even at the same
+   560px outer width its squares only spanned 548px while Xiangqi's
+   spanned the full 560px — the boards looked different sizes.
+   With padding 0 the Chess squares fill the full width, exactly
+   like Xiangqi. The move list itself may scroll internally when long. */
 body.game-active #game-board.chess-board {
     width: min(100%, 560px, calc(100svh - 340px)) !important;
     flex-shrink: 0 !important;
+    padding: 0 !important;
 }
 /* The chess move list stands alone too: same fix as Xiangqi — a fixed
    56px box, always shown from match start, scrolling inside, so
