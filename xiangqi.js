@@ -24,6 +24,7 @@ try {
             this.isActive = false;
             this.isThinking = false;
             this.matchId++;
+            this.points = null; // next match rebuilds the board DOM once
             const board = document.getElementById('game-board');
             if (board) {
                 board.removeEventListener('click', this.boardClickHandler);
@@ -222,41 +223,73 @@ try {
                 + `<g class="xiangqi-lines-stroke">${v.join('')}${h.join('')}${palace}</g>${marks}${river}</svg>`;
         }
 
-        render() {
-            if (!this.game) return;
+        // Build the board's static DOM once: the SVG line layer plus the
+        // 90 point buttons. render() only updates these in place —
+        // it must NOT destroy and rebuild them on every move, because
+        // tearing down 90 buttons + the SVG and recreating them made
+        // the whole board visibly shake/flicker on every move.
+        buildBoard() {
             const boardElement = document.getElementById('game-board');
-            const legalMoves = this.selected ? this.game.movesFrom(this.selected.r, this.selected.c) : [];
-            const targets = new Map(legalMoves.map(m => [`${m.to.r},${m.to.c}`, m]));
             boardElement.replaceChildren();
             boardElement.insertAdjacentHTML('beforeend', this.linesSvg());
+            this.points = [];
             for (let r = 0; r < 10; r++) {
+                this.points[r] = [];
                 for (let c = 0; c < 9; c++) {
-                    const piece = this.game.board[r][c];
                     const point = document.createElement('button');
                     point.type = 'button';
                     point.className = 'xiangqi-point';
                     point.dataset.r = String(r);
                     point.dataset.c = String(c);
-                    if (this.selected && this.selected.r === r && this.selected.c === c) point.classList.add('selected');
-                    if (this.lastMove && ((this.lastMove.from.r === r && this.lastMove.from.c === c) ||
-                        (this.lastMove.to.r === r && this.lastMove.to.c === c))) point.classList.add('last-move');
+                    point.setAttribute('role', 'gridcell');
+                    boardElement.appendChild(point);
+                    this.points[r][c] = point;
+                }
+            }
+        }
+
+        render() {
+            if (!this.game) return;
+            // First render after starting a match: build the static DOM.
+            if (!this.points) this.buildBoard();
+            const legalMoves = this.selected ? this.game.movesFrom(this.selected.r, this.selected.c) : [];
+            const targets = new Map(legalMoves.map(m => [`${m.to.r},${m.to.c}`, m]));
+            // Update each point in place: its piece (if any), its
+            // highlight classes and its label. Nothing is destroyed,
+            // so the board never shakes or flickers on a move.
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const piece = this.game.board[r][c];
+                    const point = this.points[r][c];
+                    point.classList.toggle('selected', !!(this.selected && this.selected.r === r && this.selected.c === c));
+                    point.classList.toggle('last-move', !!(this.lastMove && ((this.lastMove.from.r === r && this.lastMove.from.c === c) ||
+                        (this.lastMove.to.r === r && this.lastMove.to.c === c))));
                     const target = targets.get(`${r},${c}`);
-                    if (target) point.classList.add(piece ? 'capture-target' : 'legal-target');
+                    point.classList.toggle('capture-target', !!(target && piece));
+                    point.classList.toggle('legal-target', !!(target && !piece));
                     // Only occupied points get a disc. Empty points must
                     // stay transparent so the board lines, the river text
                     // and the small round position marks show through —
                     // otherwise the board becomes a field of pale discs.
+                    const span = point.querySelector('.xiangqi-piece');
                     if (piece) {
-                        const pieceSpan = document.createElement('span');
-                        pieceSpan.className = `xiangqi-piece piece-${piece.color}`;
-                        pieceSpan.textContent = this.glyphs[piece.color][piece.type];
-                        point.appendChild(pieceSpan);
+                        const glyph = this.glyphs[piece.color][piece.type];
+                        const wantClass = `xiangqi-piece piece-${piece.color}`;
+                        if (span && span.textContent === glyph && span.className === wantClass) {
+                            // Piece unchanged on this point: leave it alone.
+                        } else {
+                            if (span) span.remove();
+                            const pieceSpan = document.createElement('span');
+                            pieceSpan.className = wantClass;
+                            pieceSpan.textContent = glyph;
+                            point.appendChild(pieceSpan);
+                        }
+                    } else if (span) {
+                        span.remove();
                     }
-                    point.setAttribute('role', 'gridcell');
                     point.setAttribute('aria-label', piece
                         ? `${piece.color === 'red' ? 'Red' : 'Black'} ${this.pieceNames[piece.type]} at row ${r}, column ${c}`
                         : `Empty point row ${r}, column ${c}`);
-                    boardElement.appendChild(point);
                 }
             }
             this.renderHistory();
