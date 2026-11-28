@@ -593,26 +593,25 @@ body.game-active .chess-setup {
     display: grid;
     place-items: center;
     /* The board is 9 cols x 10 rows with a 9/10 aspect ratio, so every
-       grid cell is square. 60% of the cell + aspect-ratio 1 = a square,
+       grid cell is square. 68% of the cell + aspect-ratio 1 = a square,
        and border-radius 50% makes it a perfect round disc in every
-       browser. 60% leaves a clear gap around each piece so the grid
-       lines show and the board looks like a real board — 74% and 86%
-       both crowded the pieces together. The glyph scales with the
-       disc so it never overflows it. */
-    width: 60%;
+       browser. 68% is the middle ground: 60% was a bit too small, and
+       74% and 86% crowded the pieces together. The glyph scales with
+       the disc so it never overflows it. */
+    width: 68%;
     aspect-ratio: 1;
     border: 2px solid currentColor;
     border-radius: 50%;
     background: #f7e8c8;
     box-shadow: 0 1px 2px rgb(0 0 0 / 30%), inset 0 0 0 1px rgb(255 255 255 / 50%);
     font-family: "Songti SC", "Noto Serif CJK SC", serif;
-    /* Glyph size is RELATIVE to the piece, not a fixed size: 38cqw is
-       38% of the point, and the disc is 60% of the point, so the
+    /* Glyph size is RELATIVE to the piece, not a fixed size: 43cqw is
+       43% of the point, and the disc is 68% of the point, so the
        character is ~63% of the disc — clear margin all round, like a
        real piece — and it scales with the board on any screen. The
        clamp before it is the fallback for browsers without cqw. */
-    font-size: clamp(0.9rem, 4vw, 1.8rem);
-    font-size: 38cqw;
+    font-size: clamp(1rem, 4.5vw, 2rem);
+    font-size: 43cqw;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
