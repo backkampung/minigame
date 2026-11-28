@@ -668,14 +668,14 @@ body.game-active .chess-setup {
    its 9:10 aspect ratio (square cells) at all costs — flex-shrink: 1
    let the container crush its height on a phone, which broke the
    aspect ratio and made the cells rectangular and the Red (bottom)
-   side look cut off. The width formula's chrome allowance is raised
-   380px -> 440px so the board is sized by width to actually fit the
-   real header + controls + move list + tips on a phone, instead of
-   being sized too tall and then squashed. If it still overflows a
-   very short screen, the page scrolls a little — that beats a
-   squashed board. */
+   side look cut off. The width formula matches Chess exactly
+   (calc(100svh - 380px)) so the Xiangqi board is the same width as
+   the Chess board and uses the full screen width instead of leaving
+   blank space at the sides. Because flex-shrink is 0, the board is
+   never squashed to fit — on a very short screen the page scrolls a
+   little instead, which beats a squashed board. */
 body.game-active #game-board.xiangqi-board {
-    width: min(100%, 560px, calc(100svh - 440px)) !important;
+    width: min(100%, 560px, calc(100svh - 380px)) !important;
     flex-shrink: 0 !important;
 }
 /* The move list stands alone: a fixed-height box that always reserves
