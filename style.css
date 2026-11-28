@@ -667,16 +667,17 @@ body.game-active .chess-setup {
    its 9:10 aspect ratio (square cells) at all costs — flex-shrink: 1
    let the container crush its height on a phone, which broke the
    aspect ratio and made the cells rectangular and the Red (bottom)
-   side look cut off. The width follows Chess exactly
-   (calc(100svh - 380px)) so the Xiangqi board uses the same sizing
-   logic as Chess. Because Xiangqi is taller than Chess at the same
-   width (10/9 ratio), the 380px allowance also keeps it short
-   enough that the whole page — including the Games button at the
-   top — fits without being cut off. Because flex-shrink is 0, the
-   board is never squashed to fit — on a very short screen the page
-   scrolls a little instead, which beats a squashed board. */
+   side look cut off. The width follows Chess: Chess displays at
+   500px (its container caps it there), so Xiangqi's max is 500px
+   too, not 560px — that is why Xiangqi came out 60px wider than
+   Chess even with the same 380px allowance. The 380px allowance
+   also keeps it short enough that the whole page — including the
+   Games button at the top — fits without being cut off. Because
+   flex-shrink is 0, the board is never squashed to fit — on a very
+   short screen the page scrolls a little instead, which beats a
+   squashed board. */
 body.game-active #game-board.xiangqi-board {
-    width: min(100%, 560px, calc(100svh - 380px)) !important;
+    width: min(100%, 500px, calc(100svh - 380px)) !important;
     flex-shrink: 0 !important;
 }
 /* The move list stands alone: a fixed-height box that always reserves
