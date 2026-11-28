@@ -480,23 +480,11 @@ body.game-active:not(.tetris-active) #game-board {
     min-height: 0;
 }
 /* Chess: chrome is larger (wrapped header, players, move list), about
-   340px. The allowance matches Xiangqi exactly so the two boards are
-   always the same width on any screen — a different allowance made
-   Xiangqi 40px wider than Chess, which is the size mismatch the user
-   saw. flex-shrink: 0 is essential too: the general board rule lets
-   the board shrink (flex-shrink: 1), and on a height-constrained
-   screen the Chess board shrank 12px (560 -> 548) while Xiangqi,
-   with flex-shrink: 0, did not — so they still came out different
-   sizes even with the same allowance. And padding: 0 matters as
-   well: the base Chess rule has 6px padding, so even at the same
-   560px outer width its squares only spanned 548px while Xiangqi's
-   spanned the full 560px — the boards looked different sizes.
-   With padding 0 the Chess squares fill the full width, exactly
-   like Xiangqi. The move list itself may scroll internally when long. */
+   380px (back 56 + header 110 + New game 54 + move list 68 + tips 59
+   + body padding 28 = 375, rounded up). The previous 450px overestimated
+   it by ~70px and shrank the board for no reason. */ The move list itself may scroll internally when long. */
 body.game-active #game-board.chess-board {
-    width: min(100%, 560px, calc(100svh - 340px)) !important;
-    flex-shrink: 0 !important;
-    padding: 0 !important;
+    width: min(100%, 560px, calc(100svh - 380px)) !important;
 }
 /* The chess move list stands alone too: same fix as Xiangqi — a fixed
    56px box, always shown from match start, scrolling inside, so
@@ -679,15 +667,16 @@ body.game-active .chess-setup {
    its 9:10 aspect ratio (square cells) at all costs — flex-shrink: 1
    let the container crush its height on a phone, which broke the
    aspect ratio and made the cells rectangular and the Red (bottom)
-   side look cut off. The width uses a 340px chrome allowance: small
-   enough that the board still fills the phone width and uses the
-   blank space at the sides, but large enough that the board is a bit
-   shorter so the whole page (including the Games button at the top)
-   fits without the top being cut off. Because flex-shrink is 0, the
+   side look cut off. The width follows Chess exactly
+   (calc(100svh - 380px)) so the Xiangqi board uses the same sizing
+   logic as Chess. Because Xiangqi is taller than Chess at the same
+   width (10/9 ratio), the 380px allowance also keeps it short
+   enough that the whole page — including the Games button at the
+   top — fits without being cut off. Because flex-shrink is 0, the
    board is never squashed to fit — on a very short screen the page
    scrolls a little instead, which beats a squashed board. */
 body.game-active #game-board.xiangqi-board {
-    width: min(100%, 560px, calc(100svh - 340px)) !important;
+    width: min(100%, 560px, calc(100svh - 380px)) !important;
     flex-shrink: 0 !important;
 }
 /* The move list stands alone: a fixed-height box that always reserves
